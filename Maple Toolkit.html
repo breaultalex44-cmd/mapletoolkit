@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en-CA"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#d52b1e">
+<title>Maple Toolkit</title>
+<style>
+:root{--bg:#f5f3ef;--cd:#fff;--tx:#1c1b1f;--mu:#6a6870;--ac:#d52b1e;--bd:#e3dfd8;--ch:#ece8e1;--ok:#1e8a4a;--am:#c77c00;--rd:#c62828;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121214;--cd:#1d1d21;--tx:#ecebef;--mu:#9b99a3;--ac:#ff5a4d;--bd:#2d2d33;--ch:#2a2a30}}
+:root[data-theme="dark"]{--bg:#121214;--cd:#1d1d21;--tx:#ecebef;--mu:#9b99a3;--ac:#ff5a4d;--bd:#2d2d33;--ch:#2a2a30}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-apple-system,Roboto,sans-serif;-webkit-text-size-adjust:100%}
+#app{max-width:480px;margin:auto;padding:12px 12px 90px}
+h1{font-size:20px;margin:4px 2px 12px}h2{font-size:16px;margin:0 0 8px}
+input,select,button{font:inherit;min-height:46px;width:100%;border-radius:12px;border:1px solid var(--bd);background:var(--cd);color:var(--tx);padding:0 12px}
+button{cursor:pointer}.p{background:var(--ac);color:#fff;border:0;font-weight:600}
+.row{display:flex;gap:8px;margin:8px 0}.row>*{flex:1;min-width:0}
+.card{background:var(--cd);border:1px solid var(--bd);border-radius:16px;padding:14px;margin:0 0 12px}
+.res>div{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-top:1px solid var(--bd)}.res b{text-align:right;font-variant-numeric:tabular-nums}
+small{display:block;color:var(--mu);font-size:13px}
+.seg{display:flex;background:var(--ch);border-radius:12px;padding:3px;margin:0 0 12px;gap:2px}.seg button{border:0;background:none;min-height:40px;border-radius:10px;font-weight:600;color:var(--mu)}.seg .on{background:var(--cd);color:var(--tx);box-shadow:0 1px 3px #0003}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}.chips button,.chips a{flex:none;width:auto;min-height:40px;display:flex;align-items:center;border-radius:20px;background:var(--ch);border:0;padding:0 14px;white-space:nowrap;color:inherit;text-decoration:none;font-size:15px}.chips .on{background:var(--ac);color:#fff}
+.lk{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--cd);border:1px solid var(--bd);border-radius:14px;padding:12px 14px;margin-bottom:8px;color:inherit;text-decoration:none;min-height:52px}.lk i{font-style:normal;color:var(--ac);font-size:24px}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--cd);border-top:1px solid var(--bd);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav button{flex:1;border:0;border-radius:0;background:none;min-height:60px;font-size:12px;color:var(--mu);padding:4px}nav button span{display:block;font-size:22px}nav .on{color:var(--ac);font-weight:700}
+.ok{--c:var(--ok)}.amber{--c:var(--am)}.red,.over{--c:var(--rd)}
+.bar{height:12px;border-radius:6px;background:var(--ch);overflow:hidden;margin:10px 0}.bar i{display:block;height:100%;background:var(--c,var(--ok));transition:width .3s}
+.al{padding:12px;border-radius:12px;background:var(--ch);border-left:6px solid var(--c,var(--mu));font-weight:600;margin-bottom:10px}
+.it{display:flex;align-items:center;gap:8px;padding:10px 0;border-top:1px solid var(--bd)}.nm{flex:1;min-width:0;overflow-wrap:anywhere}
+.tg{width:auto;min-height:34px;padding:0 10px;border:0;border-radius:17px;font-size:13px;color:#fff;font-weight:600}.t13{background:#c62828}.t5{background:#c77c00}.t0{background:#1e8a4a}
+.x{width:40px;border:0;background:none;font-size:22px;color:var(--mu);padding:0}
+.ev{display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 8px;padding:9px 0;border-top:1px solid var(--bd)}.ev em{font-style:normal;font-size:12px;font-weight:700;color:var(--mu)}.ev .Upcoming{color:var(--ac)}
+</style></head><body>
+<main id="app"></main><nav id="nav"></nav>
+<script>
+const $=s=>document.querySelector(s);
+const ld=(k,d)=>{try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}};
+const sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+const f2=n=>n.toLocaleString('en-CA',{style:'currency',currency:'CAD'});
+const fn=n=>isFinite(n)?n.toLocaleString('en-CA',{maximumSignificantDigits:6}):'—';
+const E=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const row=(l,v)=>`<div><span>${l}</span><b>${v}</b></div>`;
+const opts=(a,s)=>a.map((x,i)=>`<option value="${i}" ${i==s?'selected':''}>${x}</option>`).join('');
+let sys=ld('sys','metric'),tab=ld('tab','calc');
+const TABS=[['calc','🧮','Calculators'],['shop','🛒','Shop Tax'],['ca','🇨🇦','Canada']];
+function go(t){tab=t;sv('tab',t);draw();scrollTo(0,0)}
+function draw(){const sl=[...document.querySelectorAll('.chips')].map(e=>e.scrollLeft);
+$('#nav').innerHTML=TABS.map(t=>`<button class="${t[0]==tab?'on':''}" onclick="go('${t[0]}')"><span>${t[1]}</span>${t[2]}</button>`).join('');
+$('#app').innerHTML={calc:pCalc,shop:pShop,ca:pCa}[tab]();
+if(tab=='calc'){cr();tx();tp();mg()}
+document.querySelectorAll('.chips').forEach((e,i)=>e.scrollLeft=sl[i]||0)}
+
+/* ---------- CALCULATORS (metric default) ---------- */
+const U={Length:{m:[['mm',.001],['cm',.01],['m',1],['km',1e3]],i:[['in',.0254],['ft',.3048],['yd',.9144],['mi',1609.344]]},
+Mass:{m:[['g',.001],['kg',1],['tonne',1e3]],i:[['oz',.028349523],['lb',.45359237],['stone',6.35029318]]},
+Volume:{m:[['mL',.001],['L',1]],i:[['fl oz (imp)',.0284130625],['pint (imp)',.56826125],['gal (imp)',4.54609],['gal (US)',3.785411784]]},
+Temperature:{m:[['°C',[x=>x,x=>x]]],i:[['°F',[f=>(f-32)*5/9,c=>c*9/5+32]]]},
+Speed:{m:[['km/h',1],['m/s',3.6]],i:[['mph',1.609344]]},
+'Fuel economy':{m:[['L/100 km',[x=>x,x=>x]]],i:[['mpg (imp)',[v=>282.481/v,v=>282.481/v]],['mpg (US)',[v=>235.215/v,v=>235.215/v]]]},
+Area:{m:[['m²',1],['ha',1e4],['km²',1e6]],i:[['ft²',.09290304],['acre',4046.8564224],['mi²',2589988.11]]}};
+let cv={c:'Length',v:1,u:0};
+const kf=(u,i)=>typeof u[1]=='number'?null:u[1][i],tb=(u,v)=>kf(u,0)?kf(u,0)(v):v*u[1],fb=(u,b)=>kf(u,1)?kf(u,1)(b):b/u[1];
+const PR=[['Alberta',5,0,''],['British Columbia',5,7,'PST'],['Manitoba',5,7,'RST'],['New Brunswick',5,10,'HST'],['Newfoundland and Labrador',5,10,'HST'],['Northwest Territories',5,0,''],['Nova Scotia',5,9,'HST'],['Nunavut',5,0,''],['Ontario',5,8,'HST'],['Prince Edward Island',5,10,'HST'],['Québec',5,9.975,'QST'],['Saskatchewan',5,6,'PST'],['Yukon',5,0,'']];
+let st={a:'',p:8,inc:false},tt={b:'',p:15,n:1},mo={a:'',r:'5',y:25};
+function setSys(s){sys=s;sv('sys',s);cv.u=0;draw()}
+function pCalc(){const ks=Object.keys(U),g=U[cv.c][sys[0]];
+return `<h1>🍁 Calculators</h1>
+<div class=seg><button class="${sys=='metric'?'on':''}" onclick="setSys('metric')">Metric</button><button class="${sys=='imperial'?'on':''}" onclick="setSys('imperial')">Imperial</button></div>
+<section class=card><h2>Unit converter</h2>
+<select onchange="cv.c=ks_[this.value];cv.u=0;draw()">${opts(ks,ks.indexOf(cv.c))}</select>
+<div class=row><input type=number inputmode=decimal value="${cv.v}" oninput="cv.v=this.value;cr()"><select onchange="cv.u=+this.value;cr()">${opts(g.map(u=>u[0]),cv.u)}</select></div>
+<div id=cr class=res></div></section>
+<section class=card><h2>Sales tax (GST / HST / PST)</h2>
+<div class=row><input type=number inputmode=decimal placeholder="Amount ($)" value="${st.a}" oninput="st.a=this.value;tx()"></div>
+<select onchange="st.p=+this.value;tx()">${opts(PR.map(p=>p[0]),st.p)}</select>
+<div class=seg style="margin-top:8px"><button class="${st.inc?'':'on'}" onclick="st.inc=false;draw()">Add tax</button><button class="${st.inc?'on':''}" onclick="st.inc=true;draw()">Price includes tax</button></div>
+<div id=tr class=res></div></section>
+<section class=card><h2>Tip &amp; split</h2>
+<input type=number inputmode=decimal placeholder="Bill before tax ($)" value="${tt.b}" oninput="tt.b=this.value;tp()">
+<div class=seg style="margin-top:8px">${[10,15,18,20].map(v=>`<button class="${tt.p==v?'on':''}" onclick="tt.p=${v};draw()">${v}%</button>`).join('')}</div>
+<input type=number inputmode=numeric min=1 placeholder="People" value="${tt.n}" oninput="tt.n=this.value;tp()">
+<div id=tpr class=res></div></section>
+<section class=card><h2>Mortgage payment</h2>
+<div class=row><input type=number inputmode=decimal placeholder="Amount ($)" value="${mo.a}" oninput="mo.a=this.value;mg()"><input type=number inputmode=decimal placeholder="Rate %" value="${mo.r}" oninput="mo.r=this.value;mg()"></div>
+<select onchange="mo.y=+this.value;mg()">${[15,20,25,30].map(y=>`<option value=${y} ${y==mo.y?'selected':''}>${y}-year amortization</option>`).join('')}</select>
+<div id=mgr class=res></div><small>Monthly payments; fixed rates compound semi-annually, as Canadian lenders do.</small></section>`}
+const ks_=Object.keys(U);
+function cr(){const g=U[cv.c],a=g[sys[0]][cv.u]||g[sys[0]][0],o=g[sys=='metric'?'i':'m'],v=parseFloat(cv.v);
+$('#cr').innerHTML=isNaN(v)?'Enter a number':o.map(u=>row(u[0],fn(fb(u,tb(a,v))))).join('')}
+function tx(){const[n,g,p,l]=PR[st.p],a=parseFloat(st.a)||0,r=(g+p)/100,b=st.inc?a/(1+r):a,G=b*g/100,Q=b*p/100;
+$('#tr').innerHTML=row('Before tax',f2(b))+(l=='HST'?row(`HST ${g+p}%`,f2(G+Q)):row(`GST ${g}%`,f2(G))+(p?row(`${l} ${p}%`,f2(Q)):''))+row('Total',f2(b+G+Q))}
+function tp(){const b=parseFloat(tt.b)||0,t=b*tt.p/100,n=Math.max(1,parseInt(tt.n)||1);
+$('#tpr').innerHTML=row('Tip',f2(t))+row('Total',f2(b+t))+row('Per person',f2((b+t)/n))}
+function mg(){const a=parseFloat(mo.a)||0,r=parseFloat(mo.r)||0,n=mo.y*12,i=Math.pow(1+r/200,1/6)-1,pm=i?a*i/(1-Math.pow(1+i,-n)):a/n;
+$('#mgr').innerHTML=a?row('Monthly payment',f2(pm))+row('Total interest',f2(pm*n-a))+row('Total paid',f2(pm*n)):'Enter a mortgage amount.'}
+
+/* ---------- ONTARIO SHOPPING TAX TRACKER ---------- */
+let sh=ld('shop',{b:0,i:[]});
+function cls(n){n=n.toLowerCase();
+if(/\b(books?|novels?|diapers?|newspapers?|car ?seats?|kids?|child|children'?s?|baby)\b/.test(n))return 5;
+if(/\b(chips?|candy|chocolate|gum|soda|pop|cola|snacks?|popcorn|energy|beer|wine|liquor|alcohol|pizza|burger|fries|sandwich|latte|restaurant|meal|soap|shampoo|detergent|batter(y|ies)|toothpaste|paper|tissues?|toilet)\b/.test(n))return 13;
+if(/\b(bread|milk|eggs?|apples?|bananas?|oranges?|grapes|berries|strawberr\w*|fruits?|veg\w*|lettuce|carrots?|potato(es)?|onions?|tomato(es)?|broccoli|spinach|rice|flour|sugar|butter|cheese|yogh?urt|beef|chicken|pork|turkey|fish|salmon|meat|cereal|pasta|oil|beans|oats|honey|juice|tampons?|pads|prescription|rx)\b/.test(n))return 0;
+return 13}
+const sc=()=>{let sub=0,sp=0;sh.i.forEach(x=>{sub+=x.p;sp+=Math.round(x.p*(100+x.r))/100});return{sub,sp,tax:sp-sub,rem:sh.b-sp}};
+const lv=()=>{const c=sc();if(!sh.b)return'';if(c.rem<0)return'over';const p=c.rem/sh.b;return p<=.1?'red':p<=.25?'amber':'ok'};
+function pShop(){const c=sc(),l=lv(),w=sh.b?Math.max(0,Math.min(100,c.rem/sh.b*100)):0;
+const msg=!sh.b?'Set a budget to start tracking.':l=='over'?`⚠️ Over budget by ${f2(-c.rem)}`:l=='red'?`🚨 Almost out — only ${f2(c.rem)} left`:l=='amber'?`⚠️ Running low — ${f2(c.rem)} left`:`✅ On track — ${f2(c.rem)} left`;
+const lab={13:'13% HST',5:'5% GST',0:'No tax'};
+return `<h1>🛒 Ontario Shop Tax</h1>
+<section class="card ${l}"><h2>Budget</h2>
+<div class=row><input id=sb type=number inputmode=decimal placeholder="Budget ($)" value="${sh.b||''}"><button class=p style="flex:.5" onclick="setB()">Set</button></div>
+<div class=bar><i style="width:${w}%"></i></div><div class=al>${msg}</div>
+<div class=res>${row('Items (tag prices)',f2(c.sub))}${row('HST / GST added',f2(c.tax))}${row('Total spent',f2(c.sp))}</div></section>
+<section class=card><h2>Add item</h2>
+<input id=sn placeholder="Item name (e.g. Bread)" autocomplete=off>
+<div class=row><input id=sp type=number inputmode=decimal step=0.01 placeholder="Price tag ($)" onkeydown="event.key=='Enter'&&addI()"><button class=p style="flex:.5" onclick="addI()">Add</button></div>
+<small>Tax is auto-detected from the name. Tap a badge to change it.</small></section>
+<section class=card><h2>Cart (${sh.i.length})</h2>${sh.i.length?sh.i.map((x,i)=>`<div class=it><span class=nm>${E(x.n)}<small>${f2(x.p)} on tag</small></span><button class="tg t${x.r}" onclick="cyc(${i})">${lab[x.r]}</button><b>${f2(Math.round(x.p*(100+x.r))/100)}</b><button class=x aria-label=Remove onclick="del(${i})">×</button></div>`).join('')+'<button style="margin-top:10px" onclick="sh.i=[];sv(\'shop\',sh);draw()">Clear cart</button>':'<small>Nothing yet.</small>'}</section>
+<small style="padding:0 4px">Ontario HST = 13% (5% federal + 8% provincial). Basic groceries (bread, milk, produce, meat) are zero-rated; snacks, candy, soft drinks, restaurant meals and most goods are taxable. Books, children's clothing, diapers and car seats are 5% GST only. Confirm on canada.ca.</small>`}
+function setB(){sh.b=Math.max(0,parseFloat($('#sb').value)||0);sv('shop',sh);draw()}
+function addI(){const n=$('#sn').value.trim(),p=Math.round(parseFloat($('#sp').value)*100)/100;if(!n||isNaN(p)||p<0){$('#sn').focus();return}
+const o=lv();sh.i.push({n,p,r:cls(n)});sv('shop',sh);draw();if(lv()!=o&&lv()!='ok'){try{navigator.vibrate([150,80,150])}catch(e){}}$('#sn').focus()}
+function cyc(i){sh.i[i].r={13:5,5:0,0:13}[sh.i[i].r];sv('shop',sh);draw()}
+function del(i){sh.i.splice(i,1);sv('shop',sh);draw()}
+
+/* ---------- CANADA HUB ---------- */
+const GN=(q,d)=>`https://news.google.com/search?q=${encodeURIComponent(q+(d?' when:'+d:''))}&hl=en-CA&gl=CA&ceid=CA:en`;
+const WK=q=>`https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(q)}`;
+const YF=s=>`https://finance.yahoo.com/quote/${encodeURIComponent(s)}`;
+const A=(t,s,h)=>`<a class=lk href="${h}" target=_blank rel=noopener><span><b>${t}</b><small>${s}</small></span><i>›</i></a>`;
+const live=(t,q,d='1d')=>A(t,'Live headlines · '+(d=='1d'?'last 24 h':d=='2d'?'last 48 h':'latest'),GN(q,d));
+const CATS=['Major News','Diplomacy','Economics','Local','Elections','International'];
+const INT={EU:'European Union',NATO:'NATO',G7:'G7',G20:'G20',USMCA:'CUSMA USMCA',Australia:'Australia','United States':'United States','United Kingdom':'United Kingdom'};
+const P={'Ontario':['Toronto','Mississauga','Brampton'],'Québec':['Montréal','Québec City','Laval'],'British Columbia':['Vancouver','Surrey','Burnaby'],'Alberta':['Calgary','Edmonton','Red Deer'],'Manitoba':['Winnipeg','Brandon','Steinbach'],'Saskatchewan':['Saskatoon','Regina','Prince Albert'],'Nova Scotia':['Halifax','Sydney','Truro'],'New Brunswick':['Moncton','Saint John','Fredericton'],'Newfoundland & Labrador':["St. John's",'Mount Pearl','Corner Brook'],'Prince Edward Island':['Charlottetown','Summerside','Stratford'],'Yukon':['Whitehorse','Dawson City','Watson Lake'],'Northwest Territories':['Yellowknife','Hay River','Inuvik'],'Nunavut':['Iqaluit','Rankin Inlet','Arviat']};
+const EL=[['C','Québec general election','2026-10-05'],['C','B.C. local elections','2026-10-17'],['C','Ontario municipal &amp; school board elections','2026-10-26'],['C','Manitoba municipal elections','2026-10-28'],['W','Hungary parliamentary election','2026-04-12'],['W','Scotland &amp; Wales (Holyrood, Senedd)','2026-05-07'],['W','Sweden general election','2026-09-13'],['W','Brazil general election (1st round)','2026-10-04'],['W','Israel Knesset (legal deadline)','2026-10-27'],['W','U.S. midterm elections','2026-11-03']];
+const BOC=['2026-01-28','2026-03-18','2026-04-29','2026-06-10','2026-07-15','2026-09-02','2026-10-28','2026-12-09'];
+let ca={c:0,s:0,y:0,w:'1d'};
+const chips=(a,on,f)=>`<div class=chips>${a.map((x,i)=>`<button class="${i==on?'on':''}" onclick="${f}(${i})">${x}</button>`).join('')}</div>`;
+const cC=i=>{ca.c=i;ca.s=0;ca.y=0;draw()},cS=i=>{ca.s=i;ca.y=0;draw()},cY=i=>{ca.y=i;draw()},cW=w=>{ca.w=w;draw()};
+function nextBoC(){const n=new Date(),d=BOC.find(x=>new Date(x+'T23:59:59')>=n);if(!d)return'See bankofcanada.ca';const t=new Date(d+'T00:00:00');
+return t.toLocaleDateString('en-CA',{month:'short',day:'numeric',year:'numeric'})+' · in '+Math.max(0,Math.ceil((t-n)/864e5))+' days'}
+function pCa(){const c=CATS[ca.c],w=ca.w;
+let h=`<h1>🇨🇦 Canada</h1><section class=card><h2>At a glance</h2><div class=res>${[['Capital','Ottawa'],['Area','9.98 M km² (2nd largest)'],['Provinces / territories','10 / 3'],['Government','Federal parliamentary constitutional monarchy'],['Currency','Canadian dollar (CAD)'],['Languages','English · French']].map(r=>row(...r)).join('')}</div>
+<div class=chips style="margin-top:8px">${['Canada','Economy of Canada','Politics of Canada','Foreign relations of Canada','Trade of Canada'].map(t=>`<a href="${WK(t)}" target=_blank rel=noopener>📖 ${t}</a>`).join('')}</div></section>`+chips(CATS,ca.c,'cC'),b='';
+if(c=='Major News'){b=`<div class=seg><button class="${w=='1d'?'on':''}" onclick="cW('1d')">Last 24 h</button><button class="${w=='2d'?'on':''}" onclick="cW('2d')">⏪ 48 h rewind</button></div>`
++live(w=='1d'?'Top Canadian stories':'Biggest stories of the last 48 h','Canada top news',w)+live('Politics &amp; Parliament','Canada politics Ottawa',w)+live('Business &amp; markets','Canada economy TSX',w)
++`<section class=card><h2>Markets &amp; Bank of Canada</h2><div class=res>${row('Next BoC rate decision',nextBoC())}</div><small>Per BoC's published 2026 calendar — confirm on bankofcanada.ca.</small></section>`
++A('TSX Composite — % change','Live quote · Yahoo Finance',YF('^GSPTSE'))+A('USD / CAD','Live quote · Yahoo Finance',YF('CAD=X'))
++A('CPI &amp; inflation','Statistics Canada','https://www.statcan.gc.ca/en/subjects-start/prices_and_price_indexes/consumer_price_indexes')+A('Key interest rate','Bank of Canada','https://www.bankofcanada.ca/core-functions/monetary-policy/key-interest-rate/')
++live('Bank of Canada announcements','Bank of Canada interest rate decision',w)+live('How markets are reacting','TSX reaction Canadian dollar',w)+live('Prices &amp; CPI','Canada inflation CPI grocery prices',w)}
+else if(c=='Diplomacy')b=live('Canadian diplomacy','Canada diplomacy foreign policy')+live('Global Affairs Canada','Global Affairs Canada')+live('Sanctions &amp; foreign minister','Canada sanctions foreign minister')+live('Consular &amp; travel advisories','Canada travel advisory consular')+A('Background','Wikipedia · Foreign relations of Canada',WK('Foreign relations of Canada'))
+else if(c=='Economics')b=live('Economy &amp; GDP','Canada economy GDP')+live('Trade &amp; tariffs','Canada trade tariffs exports')+live('Inflation &amp; prices','Canada inflation prices CPI')+live('Jobs &amp; wages','Canada unemployment jobs report')+live('Housing affordability','Canada housing affordability rent')+'<h2 style="margin:14px 2px 8px">Ongoing issues</h2>'+live('Health-care wait times','Canada health care wait times','2d')+live('Wildfires &amp; climate','Canada wildfires climate','2d')+live('Immigration levels','Canada immigration levels','2d')+live('Reconciliation &amp; Indigenous issues','Canada Indigenous reconciliation','2d')+live('Defence spending','Canada defence spending','2d')
+else if(c=='Local'){const pv=Object.keys(P),p=pv[ca.s],cs=P[p];h+=chips(pv,ca.s,'cS')+chips(['Overview',...cs,'Ottawa 🏛'],ca.y,'cY');
+b=ca.y==0?live(p+' headlines',p+' news')+live(p+' politics',p+' legislature government')+live(p+' economy',p+' economy jobs'):ca.y==4?live('Ottawa — reserved spot','Ottawa news')+live('Parliament Hill','Parliament Hill Ottawa')+A('Background','Wikipedia · Ottawa',WK('Ottawa')):live(cs[ca.y-1]+' headlines',cs[ca.y-1]+' '+p+' news')+live(cs[ca.y-1]+' city hall',cs[ca.y-1]+' city council')+A('Background','Wikipedia · '+cs[ca.y-1],WK(cs[ca.y-1]+' '+p))}
+else if(c=='Elections'){h+=chips(['Canada','International'],ca.s,'cS');const k=ca.s?'W':'C';
+b=`<section class=card><h2>${ca.s?'International':'Canada'} · 2026</h2>`+EL.filter(e=>e[0]==k).sort((a,b)=>a[2]<b[2]?-1:1).map(e=>{const d=new Date(e[2]+'T00:00:00'),n=(d-new Date())/864e5,t=n<-1?'Held':n<=31?'Upcoming':'Later';
+return `<div class=ev><b>${e[1]}</b><em class=${t}>${t}</em><small>${d.toLocaleDateString('en-CA',{weekday:'short',month:'short',day:'numeric'})}</small></div>`}).join('')
++`<small style="margin-top:8px">${ca.s?'Scheduled dates; check the feed for results and changes.':'No federal general election is scheduled (next fixed date: October 2029); by-elections follow the Elections Canada calendar.'}</small></section>`
++(ca.s?live('World election news','world elections 2026','2d')+live('Results &amp; upcoming votes','election results','2d'):A('Elections Canada','Official site · by-elections &amp; calendar','https://www.elections.ca')+live('Canadian election news','Canada election by-election provincial','2d')+live('Québec election results','Québec election results','2d'))}
+else{const ks=Object.keys(INT),k=ks[ca.s],q=INT[k];h+=chips(ks,ca.s,'cS');
+b=live('Canada &amp; '+k,'Canada '+q)+live('Latest '+k+' headlines',q)+(k=='United States'||k=='USMCA'?live('Tariffs &amp; trade','Canada US tariffs trade'):'')+A('Background','Wikipedia · Canada and '+k,WK('Canada '+q))}
+return h+b+'<small style="padding:4px">Headlines open live in Google News (Canada edition). Market figures open on live quote pages.</small>'}
+draw();
+</script></body></html>
