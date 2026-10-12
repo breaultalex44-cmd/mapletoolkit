@@ -327,11 +327,20 @@ function go(t) {
 }
 
 function draw() {
-    const sl = [...document.querySelectorAll('.chips')].map(e => e.scrollLeft);
-    $('#nav').innerHTML = TABS.map(t => `<button class="${t[0] == tab ? 'on' : ''}" onclick="go('${t[0]}')"><span>${t[1]}</span>${t[2]}</button>`).join('');
-    $('#app').innerHTML = { calc: pCalc, shop: pShop, ca: pCa }[tab]();
-    if (tab == 'calc') { cr(); tx(); tp(); mg(); }
-    document.querySelectorAll('.chips').forEach((e, i) => e.scrollLeft = sl[i] || 0);
+    try {
+        const sl = [...document.querySelectorAll('.chips')].map(e => e.scrollLeft);
+        const navEl = $('#nav');
+        const appEl = $('#app');
+        if (!navEl || !appEl) return;
+
+        navEl.innerHTML = TABS.map(t => `<button class="${t[0] == tab ? 'on' : ''}" onclick="go('${t[0]}')"><span>${t[1]}</span>${t[2]}</button>`).join('');
+        const renderer = { calc: pCalc, shop: pShop, ca: pCa }[tab];
+        appEl.innerHTML = renderer ? renderer() : '<p>Loading...</p>';
+        if (tab == 'calc') { cr(); tx(); tp(); mg(); }
+        document.querySelectorAll('.chips').forEach((e, i) => e.scrollLeft = sl[i] || 0);
+    } catch (err) {
+        document.body.innerHTML = `<div style="padding:20px;color:#c62828;background:#ffebee;border:1px solid #c62828;margin:20px;border-radius:8px;font-family:sans-serif;"><h3>Runtime Error Caught:</h3><pre>${err.stack}</pre></div>`;
+    }
 }
 
 /* ---------- CALCULATORS ---------- */
@@ -390,19 +399,23 @@ function pCalc() {
 const ks_ = Object.keys(U);
 function cr() {
     const g = U[cv.c], a = g[sys[0]][cv.u] || g[sys[0]][0], o = g[sys == 'metric' ? 'i' : 'm'], v = parseFloat(cv.v);
-    $('#cr').innerHTML = isNaN(v) ? 'Enter a number' : o.map(u => row(u[0], fn(fb(u, tb(a, v))))).join('');
+    const crEl = $('#cr');
+    if (crEl) crEl.innerHTML = isNaN(v) ? 'Enter a number' : o.map(u => row(u[0], fn(fb(u, tb(a, v))))).join('');
 }
 function tx() {
     const [n, g, p, l] = PR[st.p], a = parseFloat(st.a) || 0, r = (g + p) / 100, b = st.inc ? a / (1 + r) : a, G = b * g / 100, Q = b * p / 100;
-    $('#tr').innerHTML = row('Before tax', f2(b)) + (l == 'HST' ? row(`HST ${g + p}%`, f2(G + Q)) : row(`GST ${g}%`, f2(G)) + (p ? row(`${l} ${p}%`, f2(Q)) : '')) + row('Total', f2(b + G + Q));
+    const trEl = $('#tr');
+    if (trEl) trEl.innerHTML = row('Before tax', f2(b)) + (l == 'HST' ? row(`HST ${g + p}%`, f2(G + Q)) : row(`GST ${g}%`, f2(G)) + (p ? row(`${l} ${p}%`, f2(Q)) : '')) + row('Total', f2(b + G + Q));
 }
 function tp() {
     const b = parseFloat(tt.b) || 0, t = b * tt.p / 100, n = Math.max(1, parseInt(tt.n) || 1);
-    $('#tpr').innerHTML = row('Tip', f2(t)) + row('Total', f2(b + t)) + row('Per person', f2((b + t) / n));
+    const tprEl = $('#tpr');
+    if (tprEl) tprEl.innerHTML = row('Tip', f2(t)) + row('Total', f2(b + t)) + row('Per person', f2((b + t) / n));
 }
 function mg() {
     const a = parseFloat(mo.a) || 0, r = parseFloat(mo.r) || 0, n = mo.y * 12, i = Math.pow(1 + r / 200, 1 / 6) - 1, pm = i ? a * i / (1 - Math.pow(1 + i, -n)) : a / n;
-    $('#mgr').innerHTML = a ? row('Monthly payment', f2(pm)) + row('Total interest', f2(pm * n - a)) + row('Total paid', f2(pm * n)) : 'Enter a mortgage amount.';
+    const mgrEl = $('#mgr');
+    if (mgrEl) mgrEl.innerHTML = a ? row('Monthly payment', f2(pm)) + row('Total interest', f2(pm * n - a)) + row('Total paid', f2(pm * n)) : 'Enter a mortgage amount.';
 }
 
 /* ---------- ONTARIO SHOPPING TAX TRACKER ---------- */
@@ -435,14 +448,16 @@ function pShop() {
 }
 function setB() { sh.b = Math.max(0, parseFloat($('#sb').value) || 0); sv('shop', sh); draw(); }
 function addI() {
-    const n = $('#sn').value.trim(), p = Math.round(parseFloat($('#sp').value) * 100) / 100;
-    if (!n || isNaN(p) || p < 0) { $('#sn').focus(); return; }
+    const snEl = $('#sn'), spEl = $('#sp');
+    if (!snEl || !spEl) return;
+    const n = snEl.value.trim(), p = Math.round(parseFloat(spEl.value) * 100) / 100;
+    if (!n || isNaN(p) || p < 0) { snEl.focus(); return; }
     const o = lv();
     sh.i.push({ n, p, r: cls(n) });
     sv('shop', sh);
     draw();
     if (lv() != o && lv() != 'ok') { try { navigator.vibrate([150, 80, 150]); } catch (e) {} }
-    $('#sn').focus();
+    snEl.focus();
 }
 function cyc(i) { sh.i[i].r = { 13: 5, 5: 0, 0: 13 }[sh.i[i].r]; sv('shop', sh); draw(); }
 function del(i) { sh.i.splice(i, 1); sv('shop', sh); draw(); }
@@ -609,7 +624,10 @@ function pCa() {
     return h + b + '<small style="padding:4px">Headlines open live in Google News (Canada edition). Market figures open on live quote pages.</small>';
 }
 
-draw();
+// Ensure DOM is fully loaded before executing draw
+window.addEventListener('DOMContentLoaded', () => {
+    draw();
+});
 </script>
 </body>
 </html>
