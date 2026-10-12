@@ -11,6 +11,8 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-apple-system,Roboto,sans-serif;-webkit-text-size-adjust:100%}
 #app{max-width:480px;margin:auto;padding:12px 12px 90px}
+@media(min-width:768px){#app{max-width:720px;padding:24px 24px 100px}}
+@media(min-width:1024px){#app{max-width:880px}}
 h1{font-size:20px;margin:4px 2px 12px}h2{font-size:16px;margin:0 0 8px}
 input,select,button{font:inherit;min-height:46px;width:100%;border-radius:12px;border:1px solid var(--bd);background:var(--cd);color:var(--tx);padding:0 12px}
 button{cursor:pointer}.p{background:var(--ac);color:#fff;border:0;font-weight:600}
@@ -19,7 +21,7 @@ button{cursor:pointer}.p{background:var(--ac);color:#fff;border:0;font-weight:60
 .res>div{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-top:1px solid var(--bd)}.res b{text-align:right;font-variant-numeric:tabular-nums}
 small{display:block;color:var(--mu);font-size:13px}
 .seg{display:flex;background:var(--ch);border-radius:12px;padding:3px;margin:0 0 12px;gap:2px}.seg button{border:0;background:none;min-height:40px;border-radius:10px;font-weight:600;color:var(--mu)}.seg .on{background:var(--cd);color:var(--tx);box-shadow:0 1px 3px #0003}
-.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}.chips button,.chips a{flex:none;width:auto;min-height:40px;display:flex;align-items:center;border-radius:20px;background:var(--ch);border:0;padding:0 14px;white-space:nowrap;color:inherit;text-decoration:none;font-size:15px}.chips .on{background:var(--ac);color:#fff}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:thin}.chips button,.chips a{flex:none;width:auto;min-height:40px;display:flex;align-items:center;border-radius:20px;background:var(--ch);border:0;padding:0 14px;white-space:nowrap;color:inherit;text-decoration:none;font-size:15px}.chips .on{background:var(--ac);color:#fff}
 .lk{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--cd);border:1px solid var(--bd);border-radius:14px;padding:12px 14px;margin-bottom:8px;color:inherit;text-decoration:none;min-height:52px}.lk i{font-style:normal;color:var(--ac);font-size:24px}
 nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--cd);border-top:1px solid var(--bd);padding-bottom:env(safe-area-inset-bottom,0px)}
 nav button{flex:1;border:0;border-radius:0;background:none;min-height:60px;font-size:12px;color:var(--mu);padding:4px}nav button span{display:block;font-size:22px}nav .on{color:var(--ac);font-weight:700}
@@ -115,10 +117,10 @@ return `<h1>🛒 Ontario Shop Tax</h1>
 <input id=sn placeholder="Item name (e.g. Bread)" autocomplete=off>
 <div class=row><input id=sp type=number inputmode=decimal step=0.01 placeholder="Price tag ($)" onkeydown="event.key=='Enter'&&addI()"><button class=p style="flex:.5" onclick="addI()">Add</button></div>
 <small>Tax is auto-detected from the name. Tap a badge to change it.</small></section>
-<section class=card><h2>Cart (${sh.i.length})</h2>${sh.i.length?sh.i.map((x,i)=>`<div class=it><span class=nm>${E(x.n)}<small>${f2(x.p)} on tag</small></span><button class="tg t${x.r}" onclick="cyc(${i})">${lab[x.r]}</button><b>${f2(Math.round(x.p*(100+x.r))/100)}</b><button class=x aria-label=Remove onclick="del(${i})">×</button></div>`).join('')+'<button style="margin-top:10px" onclick="sh.i=[];sv(\'shop\',sh);draw()">Clear cart</button>':'<small>Nothing yet.</small>'}</section>
+<section class=card><h2>Cart (${sh.i.length})</h2>${sh.i.length?sh.i.map((x,i)=>`<div class=it><span class=nm>${E(x.n)}<small>${f2(x.p)} on tag</small></span><button class="tg t${x.r}" onclick="cyc(${i})">${lab[x.r]}</button><b>${f2(Math.round(x.p*(100+x.r))/100)}</b><button class=x aria-label=Remove onclick="del(${i})">×</button></div>`).join('')+'<button style="margin-top:10px" onclick="sh.i=[];sv(\'shop\',sh);draw()">Clear cart</button>':'<small>Nothing yet.</small>🥒'}</section>
 <small style="padding:0 4px">Ontario HST = 13% (5% federal + 8% provincial). Basic groceries (bread, milk, produce, meat) are zero-rated; snacks, candy, soft drinks, restaurant meals and most goods are taxable. Books, children's clothing, diapers and car seats are 5% GST only. Confirm on canada.ca.</small>`}
 function setB(){sh.b=Math.max(0,parseFloat($('#sb').value)||0);sv('shop',sh);draw()}
-function addI(){const n=$('#sn').value.trim(),p=Math.round(parseFloat($('#sp').value)*100)/100;if(!n||isNaN(p)||p<0){$('#sn').focus();return}
+function addI(){const n=$('#sn').value.trim(),p=Math.round(parseFloat($('#sp').value)*100)/100;if(!n\vert{}\vert{}isNaN(p)\vert{}\vert{}p<0){$('#sn').focus();return}
 const o=lv();sh.i.push({n,p,r:cls(n)});sv('shop',sh);draw();if(lv()!=o&&lv()!='ok'){try{navigator.vibrate([150,80,150])}catch(e){}}$('#sn').focus()}
 function cyc(i){sh.i[i].r={13:5,5:0,0:13}[sh.i[i].r];sv('shop',sh);draw()}
 function del(i){sh.i.splice(i,1);sv('shop',sh);draw()}
@@ -129,8 +131,21 @@ const WK=q=>`https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComp
 const YF=s=>`https://finance.yahoo.com/quote/${encodeURIComponent(s)}`;
 const A=(t,s,h)=>`<a class=lk href="${h}" target=_blank rel=noopener><span><b>${t}</b><small>${s}</small></span><i>›</i></a>`;
 const live=(t,q,d='1d')=>A(t,'Live headlines · '+(d=='1d'?'last 24 h':d=='2d'?'last 48 h':'latest'),GN(q,d));
-const CATS=['Major News','Diplomacy','Economics','Local','Elections','International'];
-const INT={EU:'European Union',NATO:'NATO',G7:'G7',G20:'G20',USMCA:'CUSMA USMCA',Australia:'Australia','United States':'United States','United Kingdom':'United Kingdom'};
+const CATS=['Major News','Diplomacy','Economics','Local','Elections','International','Active Wars'];
+const INT={
+  'United Nations':'United Nations UN',
+  'African Union':'African Union AU',
+  'Antarctica':'Antarctica treaty polar',
+  'Nordic Council':'Nordic Council Scandinavia',
+  'European Union':'European Union',
+  'NATO':'NATO',
+  'G7':'G7',
+  'G20':'G20',
+  'USMCA':'CUSMA USMCA',
+  'Australia':'Australia',
+  'United States':'United States',
+  'United Kingdom':'United Kingdom'
+};
 const P={'Ontario':['Toronto','Mississauga','Brampton'],'Québec':['Montréal','Québec City','Laval'],'British Columbia':['Vancouver','Surrey','Burnaby'],'Alberta':['Calgary','Edmonton','Red Deer'],'Manitoba':['Winnipeg','Brandon','Steinbach'],'Saskatchewan':['Saskatoon','Regina','Prince Albert'],'Nova Scotia':['Halifax','Sydney','Truro'],'New Brunswick':['Moncton','Saint John','Fredericton'],'Newfoundland & Labrador':["St. John's",'Mount Pearl','Corner Brook'],'Prince Edward Island':['Charlottetown','Summerside','Stratford'],'Yukon':['Whitehorse','Dawson City','Watson Lake'],'Northwest Territories':['Yellowknife','Hay River','Inuvik'],'Nunavut':['Iqaluit','Rankin Inlet','Arviat']};
 const EL=[['C','Québec general election','2026-10-05'],['C','B.C. local elections','2026-10-17'],['C','Ontario municipal &amp; school board elections','2026-10-26'],['C','Manitoba municipal elections','2026-10-28'],['W','Hungary parliamentary election','2026-04-12'],['W','Scotland &amp; Wales (Holyrood, Senedd)','2026-05-07'],['W','Sweden general election','2026-09-13'],['W','Brazil general election (1st round)','2026-10-04'],['W','Israel Knesset (legal deadline)','2026-10-27'],['W','U.S. midterm elections','2026-11-03']];
 const BOC=['2026-01-28','2026-03-18','2026-04-29','2026-06-10','2026-07-15','2026-09-02','2026-10-28','2026-12-09'];
@@ -140,7 +155,19 @@ const cC=i=>{ca.c=i;ca.s=0;ca.y=0;draw()},cS=i=>{ca.s=i;ca.y=0;draw()},cY=i=>{ca
 function nextBoC(){const n=new Date(),d=BOC.find(x=>new Date(x+'T23:59:59')>=n);if(!d)return'See bankofcanada.ca';const t=new Date(d+'T00:00:00');
 return t.toLocaleDateString('en-CA',{month:'short',day:'numeric',year:'numeric'})+' · in '+Math.max(0,Math.ceil((t-n)/864e5))+' days'}
 function pCa(){const c=CATS[ca.c],w=ca.w;
-let h=`<h1>🇨🇦 Canada</h1><section class=card><h2>At a glance</h2><div class=res>${[['Capital','Ottawa'],['Area','9.98 M km² (2nd largest)'],['Provinces / territories','10 / 3'],['Government','Federal parliamentary constitutional monarchy'],['Currency','Canadian dollar (CAD)'],['Languages','English · French']].map(r=>row(...r)).join('')}</div>
+let h=`<h1>🇨🇦 Canada</h1><section class=card><h2>At a glance</h2><div class=res>${[
+['Population','~40.5M – 41.8M (2026)'],
+['GDP','~$2.24 Trillion CAD'],
+['GDP per Capita','~$58,400 CAD'],
+['Population density','4 people / km²'],
+['Capital','Ottawa'],
+['Area','9.98 M km² (2nd largest)'],
+['Provinces / territories','10 / 3'],
+['Government','Federal parliamentary constitutional monarchy (PM Mark Carney)'],
+['Key Departments & Agencies','Global Affairs (@GlobalAffairsCA) · National Defence (@NationalDefence) · Finance Canada (@FinanceCanada) · PCO (@PrivyCouncilCA) · StatCan (@StatCan_eng)'],
+['Currency','Canadian dollar (CAD)'],
+['Languages','English · French']
+].map(r=>row(...r)).join('')}</div>
 <div class=chips style="margin-top:8px">${['Canada','Economy of Canada','Politics of Canada','Foreign relations of Canada','Trade of Canada'].map(t=>`<a href="${WK(t)}" target=_blank rel=noopener>📖 ${t}</a>`).join('')}</div></section>`+chips(CATS,ca.c,'cC'),b='';
 if(c=='Major News'){b=`<div class=seg><button class="${w=='1d'?'on':''}" onclick="cW('1d')">Last 24 h</button><button class="${w=='2d'?'on':''}" onclick="cW('2d')">⏪ 48 h rewind</button></div>`
 +live(w=='1d'?'Top Canadian stories':'Biggest stories of the last 48 h','Canada top news',w)+live('Politics &amp; Parliament','Canada politics Ottawa',w)+live('Business &amp; markets','Canada economy TSX',w)
@@ -157,6 +184,32 @@ b=`<section class=card><h2>${ca.s?'International':'Canada'} · 2026</h2>`+EL.fil
 return `<div class=ev><b>${e[1]}</b><em class=${t}>${t}</em><small>${d.toLocaleDateString('en-CA',{weekday:'short',month:'short',day:'numeric'})}</small></div>`}).join('')
 +`<small style="margin-top:8px">${ca.s?'Scheduled dates; check the feed for results and changes.':'No federal general election is scheduled (next fixed date: October 2029); by-elections follow the Elections Canada calendar.'}</small></section>`
 +(ca.s?live('World election news','world elections 2026','2d')+live('Results &amp; upcoming votes','election results','2d'):A('Elections Canada','Official site · by-elections &amp; calendar','https://www.elections.ca')+live('Canadian election news','Canada election by-election provincial','2d')+live('Québec election results','Québec election results','2d'))}
+else if(c=='Active Wars'){
+  h+=chips(['Strategic Updates','Canada Military'],ca.s,'cS');
+  if(ca.s==0){
+    b=live('Europe · Strategic Updates','Europe war conflict strategic updates','1d')
+     +live('Middle East · Strategic Updates','Middle East conflict war updates','1d')
+     +live('Africa · Strategic Updates','Africa conflict civil war updates','1d')
+     +live('Asia-Pacific · Strategic Updates','Asia Pacific military tension conflict','1d')
+     +live('Americas & Global · Strategic Updates','global conflict strategic updates','1d');
+  }else{
+    h+=chips(['Overview','Canadian Army','Royal Canadian Navy','Royal Canadian Air Force'],ca.y,'cY');
+    if(ca.y==0){
+      b=live('Canadian Military Overview','Canadian Armed Forces military news','1d')
+       +live('Strategic & Defence Policy','Canada defence policy military strategic','1d')
+       +live('Defence Procurements','Canada military procurement equipment contract','1d');
+    }else if(ca.y==1){
+      b=live('Canadian Army · Strategic & Deployments','Canadian Army operations deployments','1d')
+       +live('Army Procurements & Equipment','Canadian Army vehicle procurement equipment','1d');
+    }else if(ca.y==2){
+      b=live('Royal Canadian Navy · Strategic & Deployments','Royal Canadian Navy operations fleet deployments','1d')
+       +live('Navy Procurements & Shipbuilding','Royal Canadian Navy ship procurement shipbuilding contract','1d');
+    }else if(ca.y==3){
+      b=live('Royal Canadian Air Force · Strategic & Deployments','Royal Canadian Air Force operations aircraft deployments','1d')
+       +live('Air Force Procurements & Fleet','RCAF aircraft procurement fighter jet radar','1d');
+    }
+  }
+}
 else{const ks=Object.keys(INT),k=ks[ca.s],q=INT[k];h+=chips(ks,ca.s,'cS');
 b=live('Canada &amp; '+k,'Canada '+q)+live('Latest '+k+' headlines',q)+(k=='United States'||k=='USMCA'?live('Tariffs &amp; trade','Canada US tariffs trade'):'')+A('Background','Wikipedia · Canada and '+k,WK('Canada '+q))}
 return h+b+'<small style="padding:4px">Headlines open live in Google News (Canada edition). Market figures open on live quote pages.</small>'}
