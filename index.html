@@ -302,6 +302,22 @@ nav .on {
 .ev .Upcoming {
     color: var(--ac);
 }
+@keyframes pulseUpdate {
+    0% { transform: scale(1); opacity: 0.9; }
+    50% { transform: scale(1.02); opacity: 1; box-shadow: 0 0 12px var(--ac); }
+    100% { transform: scale(1); opacity: 0.9; }
+}
+.update-banner {
+    background: linear-gradient(135deg, var(--ac), var(--am));
+    color: white;
+    padding: 14px 16px;
+    border-radius: 12px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 14px;
+    animation: pulseUpdate 2s infinite ease-in-out;
+}
 </style>
 </head>
 <body>
@@ -319,7 +335,7 @@ const row = (l, v) => `<div><span>${l}</span><b>${v}</b></div>`;
 const opts = (a, s) => a.map((x, i) => `<option value="${i}" ${i == s ? 'selected' : ''}>${x}</option>`).join('');
 
 let sys = ld('sys', 'metric'), tab = ld('tab', 'calc');
-const TABS = [['calc', '🧮', 'Calculators'], ['shop', '🛒', 'Shop Tax'], ['ca', '🇨🇦', 'Canada']];
+const TABS = [['calc', '🧮', 'Calculators'], ['shop', '🛒', 'Ontario Tax Hub'], ['ca', '🇨🇦', 'Canada']];
 
 function go(t) {
     tab = t;
@@ -337,7 +353,7 @@ function draw() {
         navEl.innerHTML = TABS.map(t => `<button class="${t[0] == tab ? 'on' : ''}" onclick="go('${t[0]}')"><span>${t[1]}</span>${t[2]}</button>`).join('');
         const renderer = { calc: pCalc, shop: pShop, ca: pCa }[tab];
         appEl.innerHTML = renderer ? renderer() : '<p>Loading...</p>';
-        if (tab == 'calc') { cr(); tx(); tp(); mg(); }
+        if (tab == 'calc') { cr(); tx(); tp(); mg(); calcItax(); calcTfsa(); }
     } catch (err) {
         document.body.innerHTML = `<div style="padding:20px;color:#c62828;background:#ffebee;border:1px solid #c62828;margin:20px;border-radius:8px;font-family:sans-serif;"><h3>Initialization Error:</h3><pre>${err.stack}</pre><button onclick="localStorage.clear();location.reload();" style="margin-top:10px;padding:8px 12px;">Reset Storage & Reload</button></div>`;
     }
@@ -365,6 +381,8 @@ const PR = [
     ['Saskatchewan', 5, 6, 'PST'], ['Yukon', 5, 0, '']
 ];
 let st = { a: '', p: 8, inc: false }, tt = { b: '', p: 15, n: 1 }, mo = { a: '', r: '5', y: 25 };
+let itax = { inc: 65000, prov: 8 };
+let tfsa = { init: 10000, contrib: 500, rate: 6, years: 10 };
 
 function setSys(s) {
     sys = s;
@@ -375,7 +393,7 @@ function setSys(s) {
 
 function pCalc() {
     const ks = Object.keys(U), g = U[cv.c][sys[0]];
-    return `<h1>🍁 Calculators</h1>
+    return `<h1>🍁 Canadian Calculators & Tools</h1>
     <div class=seg><button class="${sys == 'metric' ? 'on' : ''}" onclick="setSys('metric')">Metric</button><button class="${sys == 'imperial' ? 'on' : ''}" onclick="setSys('imperial')">Imperial</button></div>
     <section class=card><h2>Unit converter</h2>
     <select onchange="cv.c=ks_[this.value];cv.u=0;draw()">${opts(ks, ks.indexOf(cv.c))}</select>
@@ -394,7 +412,15 @@ function pCalc() {
     <section class=card><h2>Mortgage payment</h2>
     <div class=row><input type=number inputmode=decimal placeholder="Amount ($)" value="${mo.a}" oninput="mo.a=this.value;mg()"><input type=number inputmode=decimal placeholder="Rate %" value="${mo.r}" oninput="mo.r=this.value;mg()"></div>
     <select onchange="mo.y=+this.value;mg()">${[15, 20, 25, 30].map(y => `<option value=${y} ${y == mo.y ? 'selected' : ''}>${y}-year amortization</option>`).join('')}</select>
-    <div id=mgr class=res></div><small>Monthly payments; fixed rates compound semi-annually, as Canadian lenders do.</small></section>`;
+    <div id=mgr class=res></div><small>Monthly payments; fixed rates compound semi-annually, as Canadian lenders do.</small></section>
+    <section class=card><h2>Canadian Income Tax Estimator</h2>
+    <div class=row><input type=number inputmode=decimal placeholder="Annual Income ($)" value="${itax.inc}" oninput="itax.inc=this.value;calcItax()"></div>
+    <select onchange="itax.prov=+this.value;calcItax()">${opts(PR.map(p => p[0]), itax.prov)}</select>
+    <div id=itxres class=res style="margin-top:8px"></div><small>Approximate estimate based on federal &amp; provincial tax brackets.</small></section>
+    <section class=card><h2>TFSA / Savings Growth Calculator</h2>
+    <div class=row><input type=number inputmode=decimal placeholder="Initial ($)" value="${tfsa.init}" oninput="tfsa.init=this.value;calcTfsa()"><input type=number inputmode=decimal placeholder="Monthly Contrib ($)" value="${tfsa.contrib}" oninput="tfsa.contrib=this.value;calcTfsa()"></div>
+    <div class=row><input type=number inputmode=decimal placeholder="Annual Return %" value="${tfsa.rate}" oninput="tfsa.rate=this.value;calcTfsa()"><input type=number inputmode=numeric placeholder="Years" value="${tfsa.years}" oninput="tfsa.years=this.value;calcTfsa()"></div>
+    <div id=tfsares class=res style="margin-top:8px"></div><small>Compound growth in a Tax-Free Savings Account (TFSA).</small></section>`;
 }
 const ks_ = Object.keys(U);
 function cr() {
@@ -417,6 +443,35 @@ function mg() {
     const mgrEl = $('#mgr');
     if (mgrEl) mgrEl.innerHTML = a ? row('Monthly payment', f2(pm)) + row('Total interest', f2(pm * n - a)) + row('Total paid', f2(pm * n)) : 'Enter a mortgage amount.';
 }
+function calcItax() {
+    const inc = parseFloat(itax.inc) || 0;
+    let f = 0;
+    if (inc <= 55867) f = inc * 0.15;
+    else if (inc <= 111733) f = 8380.05 + (inc - 55867) * 0.205;
+    else if (inc <= 173205) f = 19847.08 + (inc - 111733) * 0.26;
+    else if (inc <= 246752) f = 35829.80 + (inc - 173205) * 0.29;
+    else f = 77158.43 + (inc - 246752) * 0.33;
+    let p = inc * 0.10;
+    let total = f + p;
+    let net = inc - total;
+    const itxEl = $('#itxres');
+    if (itxEl) itxEl.innerHTML = row('Gross Income', f2(inc)) + row('Est. Federal Tax', f2(f)) + row('Est. Provincial Tax', f2(p)) + row('Total Est. Tax', f2(total)) + row('Est. Net Income', f2(net)) + row('Effective Tax Rate', ((total / inc) * 100).toFixed(1) + '%');
+}
+function calcTfsa() {
+    const init = parseFloat(tfsa.init) || 0;
+    const contrib = parseFloat(tfsa.contrib) || 0;
+    const rate = (parseFloat(tfsa.rate) || 0) / 100;
+    const years = parseInt(tfsa.years) || 1;
+    let total = init;
+    let totalContr = init;
+    for (let y = 0; y < years; y++) {
+        total = (total + contrib * 12) * (1 + rate);
+        totalContr += contrib * 12;
+    }
+    const interest = total - totalContr;
+    const tfsaEl = $('#tfsares');
+    if (tfsaEl) tfsaEl.innerHTML = row('Total Contributions', f2(totalContr)) + row('Tax-Free Interest Earned', f2(interest)) + row('Total Portfolio Value', f2(total));
+}
 
 /* ---------- ONTARIO SHOPPING TAX TRACKER ---------- */
 let sh = ld('shop', { b: 0, i: [] });
@@ -435,7 +490,8 @@ function pShop() {
     const msg = (!sh || !sh.b) ? 'Set a budget to start tracking.' : l == 'over' ? `⚠️ Over budget by ${f2(-c.rem)}` : l == 'red' ? `🚨 Almost out — only ${f2(c.rem)} left` : l == 'amber' ? `⚠️ Running low — ${f2(c.rem)} left` : `✅ On track — ${f2(c.rem)} left`;
     const lab = { 13: '13% HST', 5: '5% GST', 0: 'No tax' };
     const items = (sh && sh.i) ? sh.i : [];
-    return `<h1>🛒 Ontario Shop Tax</h1>
+    return `<h1>🛒 Ontario Tax Hub</h1>
+    <div class="update-banner">⚠️ Page Receiving Major Updates — The SiX will be powering this page soon! 🚀</div>
     <section class="card ${l}"><h2>Budget</h2>
     <div class=row><input id=sb type=number inputmode=decimal placeholder="Budget ($)" value="${(sh && sh.b) || ''}"><button class=p style="flex:.5" onclick="setB()">Set</button></div>
     <div class=bar><i style="width:${w}%"></i></div><div class=al>${msg}</div>
@@ -502,7 +558,7 @@ const P = {
     'Nunavut': ['Iqaluit', 'Rankin Inlet', 'Arviat']
 };
 const EL = [
-    ['C', 'Québec general election', '2026-10-05'], ['C', 'B.C. local elections', '2026-10-17'],
+    ['C', 'B.C. general election', '2026-10-19'],
     ['C', 'Ontario municipal &amp; school board elections', '2026-10-26'], ['C', 'Manitoba municipal elections', '2026-10-28'],
     ['W', 'Hungary parliamentary election', '2026-04-12'], ['W', 'Scotland &amp; Wales (Holyrood, Senedd)', '2026-05-07'],
     ['W', 'Sweden general election', '2026-09-13'], ['W', 'Brazil general election (1st round)', '2026-10-04'],
@@ -577,7 +633,7 @@ function pCa() {
     } else if (c == 'Local') {
         const pv = Object.keys(P), p = pv[ca.s], cs = P[p];
         h += chips(pv, ca.s, 'cS') + chips(['Overview', ...cs, 'Ottawa 🏛'], ca.y, 'cY');
-        b = ca.y == 0 ? live(p + ' headlines', p + ' news') + live(p + ' politics', p + ' legislature government') + live(p + ' economy', p + ' economy jobs') :
+        b = ca.y == 0 ? live(p + ' headlines', p + ' news') + live(p + ' politics', p + ' legislature government') + live(p + ' economy', p + ' economy jobs') + (p == 'Alberta' ? live('Alberta Separation Talk & Wexit', 'Alberta separation Wexit independence referendum') : '') :
             ca.y == 4 ? live('Ottawa — reserved spot', 'Ottawa news') + live('Parliament Hill', 'Parliament Hill Ottawa') + A('Background', 'Wikipedia · Ottawa', WK('Ottawa')) :
             live(cs[ca.y - 1] + ' headlines', cs[ca.y - 1] + ' ' + p + ' news') + live(cs[ca.y - 1] + ' city hall', cs[ca.y - 1] + ' city council') + A('Background', 'Wikipedia · ' + cs[ca.y - 1], WK(cs[ca.y - 1] + ' ' + p));
     } else if (c == 'Elections') {
@@ -589,7 +645,7 @@ function pCa() {
                 return `<div class=ev><b>${e[1]}</b><em class=${t}>${t}</em><small>${d.toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' })}</small></div>`;
             }).join('') +
             `<small style="margin-top:8px">${ca.s ? 'Scheduled dates; check the feed for results and changes.' : 'No federal general election is scheduled (next fixed date: October 2029); by-elections follow the Elections Canada calendar.'}</small></section>` +
-            (ca.s ? live('World election news', 'world elections 2026', '2d') + live('Results &amp; upcoming votes', 'election results', '2d') : A('Elections Canada', 'Official site · by-elections &amp; calendar', 'https://www.elections.ca') + live('Canadian election news', 'Canada election by-election provincial', '2d') + live('Québec election results', 'Québec election results', '2d'));
+            (ca.s ? live('World election news', 'world elections 2026', '2d') + live('Results &amp; upcoming votes', 'election results', '2d') + live('Brazil election news and updates', 'Brazil general election results politics', '2d') : A('Elections Canada', 'Official site · by-elections &amp; calendar', 'https://www.elections.ca') + live('Canadian election news', 'Canada election by-election provincial', '2d') + live('B.C. election news and results', 'British Columbia election results BC politics', '2d'));
     } else if (c == 'Active Wars') {
         h += chips(['Strategic Updates', 'Canada Military'], ca.s, 'cS');
         if (ca.s == 0) {
