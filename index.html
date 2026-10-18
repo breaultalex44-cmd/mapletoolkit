@@ -318,6 +318,25 @@ nav .on {
     margin-bottom: 14px;
     animation: pulseUpdate 2s infinite ease-in-out;
 }
+.condolence-card {
+    background: linear-gradient(135deg, var(--ch), var(--cd));
+    border: 1px solid var(--bd);
+    border-left: 6px solid var(--ac);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 14px;
+}
+.condolence-card h3 {
+    margin: 0 0 6px;
+    font-size: 15px;
+    color: var(--ac);
+}
+.condolence-card p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--tx);
+}
 </style>
 </head>
 <body>
@@ -335,7 +354,7 @@ const row = (l, v) => `<div><span>${l}</span><b>${v}</b></div>`;
 const opts = (a, s) => a.map((x, i) => `<option value="${i}" ${i == s ? 'selected' : ''}>${x}</option>`).join('');
 
 let sys = ld('sys', 'metric'), tab = ld('tab', 'calc');
-const TABS = [['calc', '🧮', 'Calculators'], ['shop', '🛒', 'Ontario Tax Hub'], ['ca', '🇨🇦', 'Canada']];
+const TABS = [['calc', '🧮', 'Calculators'], ['shop', '🛒', 'Ontario Tax Hub'], ['ca', '🇨🇦', 'Canada'], ['wainwright', '🛡️', 'Wainwright']];
 
 function go(t) {
     tab = t;
@@ -351,7 +370,7 @@ function draw() {
         if (!navEl || !appEl) return;
 
         navEl.innerHTML = TABS.map(t => `<button class="${t[0] == tab ? 'on' : ''}" onclick="go('${t[0]}')"><span>${t[1]}</span>${t[2]}</button>`).join('');
-        const renderer = { calc: pCalc, shop: pShop, ca: pCa }[tab];
+        const renderer = { calc: pCalc, shop: pShop, ca: pCa, wainwright: pWainwright }[tab];
         appEl.innerHTML = renderer ? renderer() : '<p>Loading...</p>';
         if (tab == 'calc') { cr(); tx(); tp(); mg(); calcItax(); calcTfsa(); }
     } catch (err) {
@@ -520,12 +539,50 @@ function addI() {
 function cyc(i) { sh.i[i].r = { 13: 5, 5: 0, 0: 13 }[sh.i[i].r]; sv('shop', sh); draw(); }
 function del(i) { sh.i.splice(i, 1); sv('shop', sh); draw(); }
 
+/* ---------- WAINWRIGHT ACCIDENT HUB ---------- */
+function pWainwright() {
+    return `<h1>🛡️ Wainwright Incident Intelligence Hub</h1>
+    
+    <div class="condolence-card">
+        <h3>In Deepest Sympathy &amp; Remembrance</h3>
+        <p>Our hearts go out with profound sorrow to the families, loved ones, and comrades affected by the tragic incident at CFB Wainwright. We honour the dedicated service members, first responders, and local community members navigating this painful moment. Your sacrifices and resilience are never forgotten.</p>
+    </div>
+
+    <section class=card>
+        <h2>🔴 Zoomed-In: Past 12 Hours Live News</h2>
+        <div class=res>
+            ${row('Immediate Updates', liveBadge('CFB Wainwright incident update latest', '12h'))}
+            ${row('Emergency &amp; Base Briefings', liveBadge('Wainwright military base official statements', '12h'))}
+            ${row('First Responders Activity', liveBadge('Wainwright RCMP emergency response news', '12h'))}
+        </div>
+        <small style="margin-top:8px">Real-time monitored feeds focusing exclusively on developments over the last 12 hours.</small>
+    </section>
+
+    <section class=card>
+        <h2>⏳ 72-Hour Retrospective Overlay</h2>
+        <div class=res>
+            ${row('🚨 Incident Summary (T-72h to Now)', 'Initial emergency dispatch reports, military exercise context at CFB Wainwright, and secure perimeter establishment.')}
+            ${row('🏛️ World Leader &amp; Domestic Reactions', 'Official statements from federal officials, provincial leaders, and international allies expressing solidarity and condolences.')}
+            ${row('🚓 RCMP &amp; Military Police News', 'Coordinated investigative updates, public safety notices, and traffic restrictions around the base corridor.')}
+            ${row('🌐 Whole Situation Overview', 'Comprehensive synthesis of operational impacts, hospital coordination in Alberta, and ongoing support services for affected units.')}
+        </div>
+    </section>
+
+    <section class=card>
+        <h2>🔗 Verified Live News Feeds &amp; Resources</h2>
+        ${A('Google News · Wainwright Incident', 'Live monitored coverage of the event', GN('CFB Wainwright military accident incident', '3d'))}
+        ${A('RCMP Alberta Newsroom', 'Official local police bulletins &amp; media advisories', 'https://www.rcmp-grc.gc.ca/en/news/ab')}
+        ${A('Department of National Defence', 'Official CAF news and public communications', 'https://www.canada.ca/en/department-national-defence.html')}
+    </section>`;
+}
+
 /* ---------- CANADA HUB ---------- */
 const GN = (q, d) => `https://news.google.com/search?q=${encodeURIComponent(q + (d ? ' when:' + d : ''))}&hl=en-CA&gl=CA&ceid=CA:en`;
 const WK = q => `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(q)}`;
 const YF = s => `https://finance.yahoo.com/quote/${encodeURIComponent(s)}`;
 const A = (t, s, h) => `<a class=lk href="${h}" target=_blank rel=noopener><span><b>${t}</b><small>${s}</small></span><i>›</i></a>`;
 const live = (t, q, d = '1d') => A(t, 'Live headlines · ' + (d == '1d' ? 'last 24 h' : d == '2d' ? 'last 48 h' : 'latest'), GN(q, d));
+const liveBadge = (q, d) => `<a href="${GN(q, d)}" target=_blank rel=noopener style="color:var(--ac);font-weight:600;text-decoration:none;">View Live Feed ›</a>`;
 
 const CATS = ['Major News', 'Diplomacy', 'Economics', 'Local', 'Elections', 'International', 'Active Wars'];
 const INT = {
