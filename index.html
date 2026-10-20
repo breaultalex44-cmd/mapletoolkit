@@ -493,51 +493,10 @@ function calcTfsa() {
 }
 
 /* ---------- ONTARIO SHOPPING TAX TRACKER ---------- */
-let sh = ld('shop', { b: 0, i: [] });
-function cls(n) {
-    n = n.toLowerCase();
-    if (/\b(books?|novels?|diapers?|newspapers?|car ?seats?|kids?|child|children'?s?|baby)\b/.test(n)) return 5;
-    if (/\b(chips?|candy|chocolate|gum|soda|pop|cola|snacks?|popcorn|energy|beer|wine|liquor|alcohol|pizza|burger|fries|sandwich|latte|restaurant|meal|soap|shampoo|detergent|batter(y|ies)|toothpaste|paper|tissues?|toilet)\b/.test(n)) return 13;
-    if (/\b(bread|milk|eggs?|apples?|bananas?|oranges?|grapes|berries|strawberr\w*|fruits?|veg\w*|lettuce|carrots?|potato(es)?|onions?|tomato(es)?|broccoli|spinach|rice|flour|sugar|butter|cheese|yogh?urt|beef|chicken|pork|turkey|fish|salmon|meat|cereal|pasta|oil|beans|oats|honey|juice|tampons?|pads|prescription|rx)\b/.test(n)) return 0;
-    return 13;
-}
-const sc = () => { let sub = 0, sp = 0; if (sh && sh.i) { sh.i.forEach(x => { sub += x.p; sp += Math.round(x.p * (100 + x.r)) / 100; }); } return { sub, sp, tax: sp - sub, rem: (sh ? sh.b : 0) - sp }; };
-const lv = () => { const c = sc(); if (!sh || !sh.b) return ''; if (c.rem < 0) return 'over'; const p = c.rem / sh.b; return p <= .1 ? 'red' : p <= .25 ? 'amber' : 'ok'; };
-
 function pShop() {
-    const c = sc(), l = lv(), w = (sh && sh.b) ? Math.max(0, Math.min(100, c.rem / sh.b * 100)) : 0;
-    const msg = (!sh || !sh.b) ? 'Set a budget to start tracking.' : l == 'over' ? `⚠️ Over budget by ${f2(-c.rem)}` : l == 'red' ? `🚨 Almost out — only ${f2(c.rem)} left` : l == 'amber' ? `⚠️ Running low — ${f2(c.rem)} left` : `✅ On track — ${f2(c.rem)} left`;
-    const lab = { 13: '13% HST', 5: '5% GST', 0: 'No tax' };
-    const items = (sh && sh.i) ? sh.i : [];
     return `<h1>🛒 Ontario Tax Hub</h1>
-    <div class="update-banner">⚠️ Page Receiving Major Updates — The SiX will be powering this page soon! 🚀</div>
-    <section class="card ${l}"><h2>Budget</h2>
-    <div class=row><input id=sb type=number inputmode=decimal placeholder="Budget ($)" value="${(sh && sh.b) || ''}"><button class=p style="flex:.5" onclick="setB()">Set</button></div>
-    <div class=bar><i style="width:${w}%"></i></div><div class=al>${msg}</div>
-    <div class=res>${row('Items (tag prices)', f2(c.sub))}${row('HST / GST added', f2(c.tax))}${row('Total spent', f2(c.sp))}</div></section>
-    <section class=card><h2>Add item</h2>
-    <input id=sn placeholder="Item name (e.g. Bread)" autocomplete=off>
-    <div class=row><input id=sp type=number inputmode=decimal step=0.01 placeholder="Price tag ($)" onkeydown="event.key=='Enter'&&addI()"><button class=p style="flex:.5" onclick="addI()">Add</button></div>
-    <small>Tax is auto-detected from the name. Tap a badge to change it.</small></section>
-    <section class=card><h2>Cart (${items.length})</h2>${items.length ? items.map((x, i) => `<div class=it><span class=nm>${E(x.n)}<small>${f2(x.p)} on tag</small></span><button class="tg t${x.r}" onclick="cyc(${i})">${lab[x.r]}</button><b>${f2(Math.round(x.p * (100 + x.r)) / 100)}</b><button class=x aria-label=Remove onclick="del(${i})">×</button></div>`).join('') + '<button style="margin-top:10px" onclick="sh.i=[];sv(\'shop\',sh);draw()">Clear cart</button>' : '<small>Nothing yet.</small>'}</section>
-    <small style="padding:0 4px">Ontario HST = 13% (5% federal + 8% provincial). Basic groceries are zero-rated; snacks, candy, restaurant meals and most goods are taxable. Books, children's clothing, diapers and car seats are 5% GST only.</small>`;
+    <div class="update-banner">Functions have been removed as we prepare for theSiX integration. To continue using our tax hub services, use our standalone "the SiX" application for free here; https://breaultalex44-cmd.github.io/TheSiX/</div>`;
 }
-function setB() { if (!sh) sh = { b: 0, i: [] }; sh.b = Math.max(0, parseFloat($('#sb').value) || 0); sv('shop', sh); draw(); }
-function addI() {
-    const snEl = $('#sn'), spEl = $('#sp');
-    if (!snEl || !spEl) return;
-    const n = snEl.value.trim(), p = Math.round(parseFloat(spEl.value) * 100) / 100;
-    if (!n || isNaN(p) || p < 0) { snEl.focus(); return; }
-    const o = lv();
-    if (!sh) sh = { b: 0, i: [] };
-    sh.i.push({ n, p, r: cls(n) });
-    sv('shop', sh);
-    draw();
-    if (lv() != o && lv() != 'ok') { try { navigator.vibrate([150, 80, 150]); } catch (e) {} }
-    snEl.focus();
-}
-function cyc(i) { sh.i[i].r = { 13: 5, 5: 0, 0: 13 }[sh.i[i].r]; sv('shop', sh); draw(); }
-function del(i) { sh.i.splice(i, 1); sv('shop', sh); draw(); }
 
 /* ---------- WAINWRIGHT ACCIDENT HUB ---------- */
 function pWainwright() {
@@ -547,16 +506,6 @@ function pWainwright() {
         <h3>In Deepest Sympathy &amp; Remembrance</h3>
         <p>Our hearts go out with profound sorrow to the families, loved ones, and comrades affected by the tragic incident at CFB Wainwright. We honour the dedicated service members, first responders, and local community members navigating this painful moment. Your sacrifices and resilience are never forgotten.</p>
     </div>
-
-    <section class=card>
-        <h2>🔴 Zoomed-In: Past 12 Hours Live News</h2>
-        <div class=res>
-            ${row('Immediate Updates', liveBadge('CFB Wainwright incident update latest', '12h'))}
-            ${row('Emergency &amp; Base Briefings', liveBadge('Wainwright military base official statements', '12h'))}
-            ${row('First Responders Activity', liveBadge('Wainwright RCMP emergency response news', '12h'))}
-        </div>
-        <small style="margin-top:8px">Real-time monitored feeds focusing exclusively on developments over the last 12 hours.</small>
-    </section>
 
     <section class=card>
         <h2>⏳ 72-Hour Retrospective Overlay</h2>
@@ -661,6 +610,7 @@ function pCa() {
             live(w == '1d' ? 'Top Canadian stories' : 'Biggest stories of the last 48 h', 'Canada top news', w) +
             live('Politics &amp; Parliament', 'Canada politics Ottawa', w) +
             live('Business &amp; markets', 'Canada economy TSX', w) +
+            live('CFB Wainwright incident update', 'CFB Wainwright military accident incident', w) +
             `<section class=card><h2>Markets &amp; Bank of Canada</h2><div class=res>${row('Next BoC rate decision', nextBoC())}</div><small>Per BoC's published 2026 calendar — confirm on bankofcanada.ca.</small></section>` +
             A('TSX Composite — % change', 'Live quote · Yahoo Finance', YF('^GSPTSE')) +
             A('USD / CAD', 'Live quote · Yahoo Finance', YF('CAD=X')) +
@@ -690,7 +640,7 @@ function pCa() {
     } else if (c == 'Local') {
         const pv = Object.keys(P), p = pv[ca.s], cs = P[p];
         h += chips(pv, ca.s, 'cS') + chips(['Overview', ...cs, 'Ottawa 🏛'], ca.y, 'cY');
-        b = ca.y == 0 ? live(p + ' headlines', p + ' news') + live(p + ' politics', p + ' legislature government') + live(p + ' economy', p + ' economy jobs') + (p == 'Alberta' ? live('Alberta Separation Talk & Wexit', 'Alberta separation Wexit independence referendum') : '') :
+        b = ca.y == 0 ? live(p + ' headlines', p + ' news') + live(p + ' politics', p + ' legislature government') + live(p + ' economy', p + ' economy jobs') + (p == 'Alberta' ? live('Alberta referendum talk', 'Alberta referendum talk') : '') :
             ca.y == 4 ? live('Ottawa — reserved spot', 'Ottawa news') + live('Parliament Hill', 'Parliament Hill Ottawa') + A('Background', 'Wikipedia · Ottawa', WK('Ottawa')) :
             live(cs[ca.y - 1] + ' headlines', cs[ca.y - 1] + ' ' + p + ' news') + live(cs[ca.y - 1] + ' city hall', cs[ca.y - 1] + ' city council') + A('Background', 'Wikipedia · ' + cs[ca.y - 1], WK(cs[ca.y - 1] + ' ' + p));
     } else if (c == 'Elections') {
