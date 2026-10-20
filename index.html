@@ -354,7 +354,7 @@ const row = (l, v) => `<div><span>${l}</span><b>${v}</b></div>`;
 const opts = (a, s) => a.map((x, i) => `<option value="${i}" ${i == s ? 'selected' : ''}>${x}</option>`).join('');
 
 let sys = ld('sys', 'metric'), tab = ld('tab', 'calc');
-const TABS = [['calc', '🧮', 'Calculators'], ['shop', '🛒', 'Ontario Tax Hub'], ['ca', '🇨🇦', 'Canada'], ['wainwright', '🛡️', 'Wainwright']];
+const TABS = [['calc', '🧮', 'Calculators'], ['shop', '🛒', 'Ontario Tax Hub'], ['ca', '🇨🇦', 'Canada']];
 
 function go(t) {
     tab = t;
@@ -370,7 +370,7 @@ function draw() {
         if (!navEl || !appEl) return;
 
         navEl.innerHTML = TABS.map(t => `<button class="${t[0] == tab ? 'on' : ''}" onclick="go('${t[0]}')"><span>${t[1]}</span>${t[2]}</button>`).join('');
-        const renderer = { calc: pCalc, shop: pShop, ca: pCa, wainwright: pWainwright }[tab];
+        const renderer = { calc: pCalc, shop: pShop, ca: pCa }[tab];
         appEl.innerHTML = renderer ? renderer() : '<p>Loading...</p>';
         if (tab == 'calc') { cr(); tx(); tp(); mg(); calcItax(); calcTfsa(); }
     } catch (err) {
@@ -496,33 +496,6 @@ function calcTfsa() {
 function pShop() {
     return `<h1>🛒 Ontario Tax Hub</h1>
     <div class="update-banner">Functions have been removed as we prepare for theSiX integration. To continue using our tax hub services, use our standalone "the SiX" application for free here; https://breaultalex44-cmd.github.io/TheSiX/</div>`;
-}
-
-/* ---------- WAINWRIGHT ACCIDENT HUB ---------- */
-function pWainwright() {
-    return `<h1>🛡️ Wainwright Incident Intelligence Hub</h1>
-    
-    <div class="condolence-card">
-        <h3>In Deepest Sympathy &amp; Remembrance</h3>
-        <p>Our hearts go out with profound sorrow to the families, loved ones, and comrades affected by the tragic incident at CFB Wainwright. We honour the dedicated service members, first responders, and local community members navigating this painful moment. Your sacrifices and resilience are never forgotten.</p>
-    </div>
-
-    <section class=card>
-        <h2>⏳ 72-Hour Retrospective Overlay</h2>
-        <div class=res>
-            ${row('🚨 Incident Summary (T-72h to Now)', 'Initial emergency dispatch reports, military exercise context at CFB Wainwright, and secure perimeter establishment.')}
-            ${row('🏛️ World Leader &amp; Domestic Reactions', 'Official statements from federal officials, provincial leaders, and international allies expressing solidarity and condolences.')}
-            ${row('🚓 RCMP &amp; Military Police News', 'Coordinated investigative updates, public safety notices, and traffic restrictions around the base corridor.')}
-            ${row('🌐 Whole Situation Overview', 'Comprehensive synthesis of operational impacts, hospital coordination in Alberta, and ongoing support services for affected units.')}
-        </div>
-    </section>
-
-    <section class=card>
-        <h2>🔗 Verified Live News Feeds &amp; Resources</h2>
-        ${A('Google News · Wainwright Incident', 'Live monitored coverage of the event', GN('CFB Wainwright military accident incident', '3d'))}
-        ${A('RCMP Alberta Newsroom', 'Official local police bulletins &amp; media advisories', 'https://www.rcmp-grc.gc.ca/en/news/ab')}
-        ${A('Department of National Defence', 'Official CAF news and public communications', 'https://www.canada.ca/en/department-national-defence.html')}
-    </section>`;
 }
 
 /* ---------- CANADA HUB ---------- */
