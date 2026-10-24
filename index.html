@@ -538,10 +538,16 @@ const P = {
 };
 const EL = [
     ['C', 'B.C. general election', '2026-10-19'],
-    ['C', 'Ontario municipal &amp; school board elections', '2026-10-26'], ['C', 'Manitoba municipal elections', '2026-10-28'],
-    ['W', 'Hungary parliamentary election', '2026-04-12'], ['W', 'Scotland &amp; Wales (Holyrood, Senedd)', '2026-05-07'],
-    ['W', 'Sweden general election', '2026-09-13'], ['W', 'Brazil general election (1st round)', '2026-10-04'],
-    ['W', 'Israel Knesset (legal deadline)', '2026-10-27'], ['W', 'U.S. midterm elections', '2026-11-03']
+    ['C', 'Ontario municipal &amp; school board elections', '2026-10-26'],
+    ['C', 'Manitoba municipal elections', '2026-10-28'],
+    ['C', 'Prince Edward Island municipal elections', '2026-11-02'],
+    ['C', 'Saskatchewan municipal elections', '2026-11-11'],
+    ['C', 'Yukon municipal elections', '2026-12-03'],
+    ['W', 'Sweden general election', '2026-09-13'],
+    ['W', 'Brazil general election (1st round)', '2026-10-04'],
+    ['W', 'Israel Knesset (legal deadline)', '2026-10-27'],
+    ['W', 'U.S. midterm elections', '2026-11-03'],
+    ['W', 'New Zealand general election', '2026-11-21']
 ];
 const BOC = ['2026-01-28', '2026-03-18', '2026-04-29', '2026-06-10', '2026-07-15', '2026-09-02', '2026-10-28', '2026-12-09'];
 let ca = { c: 0, s: 0, y: 0, w: '1d' };
@@ -583,7 +589,6 @@ function pCa() {
             live(w == '1d' ? 'Top Canadian stories' : 'Biggest stories of the last 48 h', 'Canada top news', w) +
             live('Politics &amp; Parliament', 'Canada politics Ottawa', w) +
             live('Business &amp; markets', 'Canada economy TSX', w) +
-            live('CFB Wainwright incident update', 'CFB Wainwright military accident incident', w) +
             `<section class=card><h2>Markets &amp; Bank of Canada</h2><div class=res>${row('Next BoC rate decision', nextBoC())}</div><small>Per BoC's published 2026 calendar — confirm on bankofcanada.ca.</small></section>` +
             A('TSX Composite — % change', 'Live quote · Yahoo Finance', YF('^GSPTSE')) +
             A('USD / CAD', 'Live quote · Yahoo Finance', YF('CAD=X')) +
@@ -625,7 +630,7 @@ function pCa() {
                 return `<div class=ev><b>${e[1]}</b><em class=${t}>${t}</em><small>${d.toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' })}</small></div>`;
             }).join('') +
             `<small style="margin-top:8px">${ca.s ? 'Scheduled dates; check the feed for results and changes.' : 'No federal general election is scheduled (next fixed date: October 2029); by-elections follow the Elections Canada calendar.'}</small></section>` +
-            (ca.s ? live('World election news', 'world elections 2026', '2d') + live('Results &amp; upcoming votes', 'election results', '2d') + live('Brazil election news and updates', 'Brazil general election results politics', '2d') : A('Elections Canada', 'Official site · by-elections &amp; calendar', 'https://www.elections.ca') + live('Canadian election news', 'Canada election by-election provincial', '2d') + live('B.C. election news and results', 'British Columbia election results BC politics', '2d'));
+            (ca.s ? live('U.S Mid-Term election updates', 'US midterm elections 2026 Congress Senate House', '2d') + live('World election news', 'world elections 2026', '2d') + live('Results &amp; upcoming votes', 'election results', '2d') + live('Brazil election news and updates', 'Brazil general election results politics', '2d') : A('Elections Canada', 'Official site · by-elections &amp; calendar', 'https://www.elections.ca') + live('Canadian election news', 'Canada election by-election provincial', '2d') + live('B.C. election news and results', 'British Columbia election results BC politics', '2d'));
     } else if (c == 'Active Wars') {
         h += chips(['Strategic Updates', 'Canada Military'], ca.s, 'cS');
         if (ca.s == 0) {
