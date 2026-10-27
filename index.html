@@ -7,37 +7,49 @@
 <title>Maple Toolkit — Canada Hub & Calculators</title>
 <style>
 :root {
-    --bg: #f5f3ef;
+    --bg: #f8f6f2;
     --cd: #ffffff;
-    --tx: #1c1b1f;
-    --mu: #6a6870;
+    --tx: #1a191e;
+    --mu: #686573;
     --ac: #d52b1e;
-    --bd: #e3dfd8;
-    --ch: #ece8e1;
+    --ac-light: rgba(213, 43, 30, 0.08);
+    --bd: #e4e0d8;
+    --ch: #eeeae2;
     --ok: #1e8a4a;
     --am: #c77c00;
     --rd: #c62828;
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
+    --shadow-md: 0 8px 24px rgba(0,0,0,0.06);
+    --radius-lg: 18px;
+    --radius-md: 12px;
 }
 @media(prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-        --bg: #121214;
-        --cd: #1d1d21;
-        --tx: #ecebef;
-        --mu: #9b99a3;
+        --bg: #121215;
+        --cd: #1c1c21;
+        --tx: #f0eff4;
+        --mu: #9e9ca8;
         --ac: #ff5a4d;
-        --bd: #2d2d33;
-        --ch: #2a2a30;
+        --ac-light: rgba(255, 90, 77, 0.12);
+        --bd: #2c2c34;
+        --ch: #26262e;
+        --shadow-sm: 0 2px 8px rgba(0,0,0,0.2);
+        --shadow-md: 0 8px 24px rgba(0,0,0,0.35);
     }
 }
 :root[data-theme="dark"] {
-    --bg: #121214;
-    --cd: #1d1d21;
-    --tx: #ecebef;
-    --mu: #9b99a3;
+    --bg: #121215;
+    --cd: #1c1c21;
+    --tx: #f0eff4;
+    --mu: #9e9ca8;
     --ac: #ff5a4d;
-    --bd: #2d2d33;
-    --ch: #2a2a30;
+    --ac-light: rgba(255, 90, 77, 0.12);
+    --bd: #2c2c34;
+    --ch: #26262e;
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.2);
+    --shadow-md: 0 8px 24px rgba(0,0,0,0.35);
 }
+
 html {
     scroll-padding-top: env(safe-area-inset-top, 0px);
 }
@@ -48,47 +60,61 @@ body {
     margin: 0;
     background: var(--bg);
     color: var(--tx);
-    font: 16px/1.4 system-ui, -apple-system, Roboto, sans-serif;
+    font: 16px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     -webkit-text-size-adjust: 100%;
     min-height: 100vh;
 }
 #app {
     max-width: 480px;
     margin: auto;
-    padding: 12px 12px 90px;
+    padding: 16px 16px 100px;
     display: block;
 }
 @media(min-width: 768px) {
     #app {
         max-width: 720px;
-        padding: 24px 24px 100px;
+        padding: 28px 28px 110px;
     }
 }
 @media(min-width: 1024px) {
     #app {
-        max-width: 960px;
+        max-width: 920px;
     }
 }
+
 h1 {
-    font-size: 22px;
-    margin: 4px 2px 16px;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin: 8px 2px 20px;
+    color: var(--tx);
 }
 h2 {
     font-size: 16px;
-    margin: 0 0 8px;
+    font-weight: 700;
+    margin: 0 0 12px;
+    letter-spacing: -0.2px;
 }
+
 input, select, button {
     font: inherit;
-    min-height: 46px;
+    min-height: 48px;
     width: 100%;
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     border: 1px solid var(--bd);
     background: var(--cd);
     color: var(--tx);
-    padding: 0 12px;
+    padding: 0 14px;
+    transition: all 0.2s ease;
+    outline: none;
+}
+input:focus, select:focus {
+    border-color: var(--ac);
+    box-shadow: 0 0 0 3px var(--ac-light);
 }
 button {
     cursor: pointer;
+    user-select: none;
 }
 .p {
     background: var(--ac);
@@ -96,109 +122,158 @@ button {
     border: 0;
     font-weight: 600;
 }
+.p:hover {
+    opacity: 0.92;
+}
+
 .row {
     display: flex;
-    gap: 8px;
-    margin: 8px 0;
+    gap: 10px;
+    margin: 10px 0;
 }
 .row > * {
     flex: 1;
     min-width: 0;
 }
+
 .card {
     background: var(--cd);
     border: 1px solid var(--bd);
-    border-radius: 16px;
-    padding: 16px;
-    margin: 0 0 14px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin: 0 0 18px;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
+.card:hover {
+    box-shadow: var(--shadow-md);
+}
+
 .res > div {
     display: flex;
     justify-content: space-between;
-    gap: 8px;
-    padding: 8px 0;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
     border-top: 1px solid var(--bd);
+    font-size: 14px;
+}
+.res > div:first-child {
+    border-top: none;
+    padding-top: 2px;
 }
 .res b {
     text-align: right;
     font-variant-numeric: tabular-nums;
+    font-weight: 600;
 }
 small {
     display: block;
     color: var(--mu);
     font-size: 13px;
+    line-height: 1.4;
 }
+
 .seg {
     display: flex;
     background: var(--ch);
-    border-radius: 12px;
-    padding: 3px;
-    margin: 0 0 12px;
-    gap: 2px;
+    border-radius: 14px;
+    padding: 4px;
+    margin: 0 0 16px;
+    gap: 4px;
 }
 .seg button {
     border: 0;
-    background: none;
-    min-height: 40px;
+    background: transparent;
+    min-height: 38px;
     border-radius: 10px;
+    font-size: 14px;
     font-weight: 600;
     color: var(--mu);
 }
 .seg .on {
     background: var(--cd);
     color: var(--tx);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
+
 .chips {
     display: flex;
     gap: 8px;
     overflow-x: auto;
-    padding: 2px 0 10px;
+    padding: 2px 0 12px;
     scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
 }
 .chips button, .chips a {
     flex: none;
     width: auto;
-    min-height: 40px;
+    min-height: 38px;
     display: flex;
     align-items: center;
     border-radius: 20px;
     background: var(--ch);
-    border: 0;
-    padding: 0 14px;
+    border: 1px solid transparent;
+    padding: 0 16px;
     white-space: nowrap;
-    color: inherit;
+    color: var(--tx);
     text-decoration: none;
-    font-size: 15px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+.chips button:hover, .chips a:hover {
+    border-color: var(--bd);
 }
 .chips .on {
     background: var(--ac);
-    color: #fff;
+    color: #ffffff;
+    font-weight: 600;
 }
+
+.dropdown-container {
+    margin: 10px 0 16px;
+}
+.dropdown-container label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--mu);
+    margin-bottom: 6px;
+}
+
 .lk {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 8px;
+    gap: 12px;
     background: var(--cd);
     border: 1px solid var(--bd);
-    border-radius: 14px;
-    padding: 12px 14px;
-    margin-bottom: 8px;
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    margin-bottom: 10px;
     color: inherit;
     text-decoration: none;
-    min-height: 52px;
-    transition: transform 0.1s ease;
+    min-height: 54px;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
 }
 .lk:hover {
     border-color: var(--ac);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
 }
 .lk i {
     font-style: normal;
     color: var(--ac);
-    font-size: 24px;
+    font-size: 20px;
+    font-weight: 700;
+    transition: transform 0.2s ease;
 }
+.lk:hover i {
+    transform: translateX(3px);
+}
+
 nav {
     position: fixed;
     left: 0;
@@ -206,136 +281,118 @@ nav {
     bottom: 0;
     display: flex;
     background: var(--cd);
+    backdrop-filter: blur(12px);
     border-top: 1px solid var(--bd);
     padding-bottom: env(safe-area-inset-bottom, 0px);
     z-index: 100;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
 }
 nav button {
     flex: 1;
     border: 0;
     border-radius: 0;
     background: none;
-    min-height: 60px;
-    font-size: 12px;
+    min-height: 62px;
+    font-size: 11px;
+    font-weight: 600;
     color: var(--mu);
-    padding: 4px;
+    padding: 6px 2px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
 }
 nav button span {
     display: block;
-    font-size: 22px;
+    font-size: 20px;
+    line-height: 1;
 }
 nav .on {
     color: var(--ac);
-    font-weight: 700;
 }
-.ok { --c: var(--ok); }
-.amber { --c: var(--am); }
-.red, .over { --c: var(--rd); }
-.bar {
-    height: 12px;
-    border-radius: 6px;
-    background: var(--ch);
+
+@keyframes pulseGlow {
+    0% { transform: scale(0.98); opacity: 0.85; box-shadow: 0 0 0 0 rgba(213, 43, 30, 0.4); }
+    50% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 10px rgba(213, 43, 30, 0); }
+    100% { transform: scale(0.98); opacity: 0.85; box-shadow: 0 0 0 0 rgba(213, 43, 30, 0); }
+}
+
+.tax-hub-card {
+    background: linear-gradient(135deg, var(--cd), var(--ch));
+    border: 1px solid var(--bd);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    box-shadow: var(--shadow-md);
+    position: relative;
     overflow: hidden;
-    margin: 10px 0;
 }
-.bar i {
-    display: block;
-    height: 100%;
-    background: var(--c, var(--ok));
-    transition: width .3s;
+.tax-hub-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--ac), var(--am));
 }
-.al {
-    padding: 12px;
-    border-radius: 12px;
-    background: var(--ch);
-    border-left: 6px solid var(--c, var(--mu));
-    font-weight: 600;
-    margin-bottom: 10px;
-}
-.it {
-    display: flex;
+.status-badge {
+    display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 10px 0;
-    border-top: 1px solid var(--bd);
+    background: var(--ac-light);
+    color: var(--ac);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
 }
-.nm {
-    flex: 1;
-    min-width: 0;
-    overflow-wrap: anywhere;
+.status-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--ac);
+    border-radius: 50%;
+    animation: pulseGlow 1.8s infinite ease-in-out;
 }
-.tg {
-    width: auto;
-    min-height: 34px;
-    padding: 0 10px;
-    border: 0;
-    border-radius: 17px;
-    font-size: 13px;
-    color: #fff;
-    font-weight: 600;
+.notice-box {
+    background: var(--cd);
+    border: 1px solid var(--bd);
+    border-left: 4px solid var(--am);
+    padding: 12px 14px;
+    border-radius: var(--radius-md);
+    margin: 14px 0;
+    font-size: 13.5px;
+    color: var(--tx);
+    line-height: 1.4;
 }
-.t13 { background: #c62828; }
-.t5 { background: #c77c00; }
-.t0 { background: #1e8a4a; }
-.x {
-    width: 40px;
-    border: 0;
-    background: none;
-    font-size: 22px;
-    color: var(--mu);
-    padding: 0;
-}
+
 .ev {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     justify-content: space-between;
-    gap: 2px 8px;
-    padding: 9px 0;
+    gap: 4px 12px;
+    padding: 12px 0;
     border-top: 1px solid var(--bd);
+}
+.ev:first-of-type {
+    border-top: none;
 }
 .ev em {
     font-style: normal;
     font-size: 12px;
     font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 12px;
+    background: var(--ch);
     color: var(--mu);
 }
 .ev .Upcoming {
+    background: var(--ac-light);
     color: var(--ac);
-}
-@keyframes pulseUpdate {
-    0% { transform: scale(1); opacity: 0.9; }
-    50% { transform: scale(1.02); opacity: 1; box-shadow: 0 0 12px var(--ac); }
-    100% { transform: scale(1); opacity: 0.9; }
-}
-.update-banner {
-    background: linear-gradient(135deg, var(--ac), var(--am));
-    color: white;
-    padding: 14px 16px;
-    border-radius: 12px;
-    text-align: center;
-    font-weight: 700;
-    font-size: 15px;
-    margin-bottom: 14px;
-    animation: pulseUpdate 2s infinite ease-in-out;
-}
-.condolence-card {
-    background: linear-gradient(135deg, var(--ch), var(--cd));
-    border: 1px solid var(--bd);
-    border-left: 6px solid var(--ac);
-    border-radius: 14px;
-    padding: 16px;
-    margin-bottom: 14px;
-}
-.condolence-card h3 {
-    margin: 0 0 6px;
-    font-size: 15px;
-    color: var(--ac);
-}
-.condolence-card p {
-    margin: 0;
-    font-size: 14px;
-    line-height: 1.5;
-    color: var(--tx);
 }
 </style>
 </head>
@@ -349,7 +406,6 @@ const ld = (k, d) => { try { const v = localStorage.getItem(k); return v == null
 const sv = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} };
 const f2 = n => n.toLocaleString('en-CA', { style: 'currency', currency: 'CAD' });
 const fn = n => isFinite(n) ? n.toLocaleString('en-CA', { maximumSignificantDigits: 6 }) : '—';
-const E = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const row = (l, v) => `<div><span>${l}</span><b>${v}</b></div>`;
 const opts = (a, s) => a.map((x, i) => `<option value="${i}" ${i == s ? 'selected' : ''}>${x}</option>`).join('');
 
@@ -421,25 +477,25 @@ function pCalc() {
     <section class=card><h2>Sales tax (GST / HST / PST)</h2>
     <div class=row><input type=number inputmode=decimal placeholder="Amount ($)" value="${st.a}" oninput="st.a=this.value;tx()"></div>
     <select onchange="st.p=+this.value;tx()">${opts(PR.map(p => p[0]), st.p)}</select>
-    <div class=seg style="margin-top:8px"><button class="${st.inc ? '' : 'on'}" onclick="st.inc=false;draw()">Add tax</button><button class="${st.inc ? 'on' : ''}" onclick="st.inc=true;draw()">Price includes tax</button></div>
+    <div class=seg style="margin-top:10px"><button class="${st.inc ? '' : 'on'}" onclick="st.inc=false;draw()">Add tax</button><button class="${st.inc ? 'on' : ''}" onclick="st.inc=true;draw()">Price includes tax</button></div>
     <div id=tr class=res></div></section>
     <section class=card><h2>Tip &amp; split</h2>
     <input type=number inputmode=decimal placeholder="Bill before tax ($)" value="${tt.b}" oninput="tt.b=this.value;tp()">
-    <div class=seg style="margin-top:8px">${[10, 15, 18, 20].map(v => `<button class="${tt.p == v ? 'on' : ''}" onclick="tt.p=${v};draw()">${v}%</button>`).join('')}</div>
+    <div class=seg style="margin-top:10px">${[10, 15, 18, 20].map(v => `<button class="${tt.p == v ? 'on' : ''}" onclick="tt.p=${v};draw()">${v}%</button>`).join('')}</div>
     <input type=number inputmode=numeric min=1 placeholder="People" value="${tt.n}" oninput="tt.n=this.value;tp()">
     <div id=tpr class=res></div></section>
     <section class=card><h2>Mortgage payment</h2>
     <div class=row><input type=number inputmode=decimal placeholder="Amount ($)" value="${mo.a}" oninput="mo.a=this.value;mg()"><input type=number inputmode=decimal placeholder="Rate %" value="${mo.r}" oninput="mo.r=this.value;mg()"></div>
     <select onchange="mo.y=+this.value;mg()">${[15, 20, 25, 30].map(y => `<option value=${y} ${y == mo.y ? 'selected' : ''}>${y}-year amortization</option>`).join('')}</select>
-    <div id=mgr class=res></div><small>Monthly payments; fixed rates compound semi-annually, as Canadian lenders do.</small></section>
+    <div id=mgr class=res></div><small style="margin-top:8px">Monthly payments; fixed rates compound semi-annually, as Canadian lenders do.</small></section>
     <section class=card><h2>Canadian Income Tax Estimator</h2>
     <div class=row><input type=number inputmode=decimal placeholder="Annual Income ($)" value="${itax.inc}" oninput="itax.inc=this.value;calcItax()"></div>
     <select onchange="itax.prov=+this.value;calcItax()">${opts(PR.map(p => p[0]), itax.prov)}</select>
-    <div id=itxres class=res style="margin-top:8px"></div><small>Approximate estimate based on federal &amp; provincial tax brackets.</small></section>
+    <div id=itxres class=res style="margin-top:10px"></div><small style="margin-top:8px">Approximate estimate based on federal &amp; provincial tax brackets.</small></section>
     <section class=card><h2>TFSA / Savings Growth Calculator</h2>
     <div class=row><input type=number inputmode=decimal placeholder="Initial ($)" value="${tfsa.init}" oninput="tfsa.init=this.value;calcTfsa()"><input type=number inputmode=decimal placeholder="Monthly Contrib ($)" value="${tfsa.contrib}" oninput="tfsa.contrib=this.value;calcTfsa()"></div>
     <div class=row><input type=number inputmode=decimal placeholder="Annual Return %" value="${tfsa.rate}" oninput="tfsa.rate=this.value;calcTfsa()"><input type=number inputmode=numeric placeholder="Years" value="${tfsa.years}" oninput="tfsa.years=this.value;calcTfsa()"></div>
-    <div id=tfsares class=res style="margin-top:8px"></div><small>Compound growth in a Tax-Free Savings Account (TFSA).</small></section>`;
+    <div id=tfsares class=res style="margin-top:10px"></div><small style="margin-top:8px">Compound growth in a Tax-Free Savings Account (TFSA).</small></section>`;
 }
 const ks_ = Object.keys(U);
 function cr() {
@@ -495,7 +551,19 @@ function calcTfsa() {
 /* ---------- ONTARIO SHOPPING TAX TRACKER ---------- */
 function pShop() {
     return `<h1>🛒 Ontario Tax Hub</h1>
-    <div class="update-banner">Functions have been removed as we prepare for theSiX integration. To continue using our tax hub services, use our standalone "the SiX" application for free here; https://breaultalex44-cmd.github.io/TheSiX/</div>`;
+    <div class="tax-hub-card">
+        <div class="status-badge"><span class="status-dot"></span> Migration Notice</div>
+        <h2 style="font-size:20px;margin:0 0 10px;">Platform Migration in Progress</h2>
+        <p style="margin:0 0 14px;color:var(--mu);line-height:1.5;">Functions have been migrated as we prepare for "the SiX" platform integration.</p>
+        <div class="notice-box">
+            <b>⚠️ Notice: Processing & Data Delays Occurring</b>
+            <div style="margin-top:4px;">Tax calculations and service syncing are currently experiencing temporary delays. Please utilize our primary standalone hub for real-time services.</div>
+        </div>
+        <a class="lk" href="https://breaultalex44-cmd.github.io/TheSiX/" target="_blank" rel="noopener" style="margin-top:16px;background:var(--ac);color:white;border:none;">
+            <span><b style="color:white;">Open "the SiX" Application</b><small style="color:rgba(255,255,255,0.85);">Access full features & live hub online</small></span>
+            <i style="color:white;">›</i>
+        </a>
+    </div>`;
 }
 
 /* ---------- CANADA HUB ---------- */
@@ -503,23 +571,28 @@ const GN = (q, d) => `https://news.google.com/search?q=${encodeURIComponent(q + 
 const WK = q => `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(q)}`;
 const YF = s => `https://finance.yahoo.com/quote/${encodeURIComponent(s)}`;
 const A = (t, s, h) => `<a class=lk href="${h}" target=_blank rel=noopener><span><b>${t}</b><small>${s}</small></span><i>›</i></a>`;
-const live = (t, q, d = '1d') => A(t, 'Live headlines · ' + (d == '1d' ? 'last 24 h' : d == '2d' ? 'last 48 h' : 'latest'), GN(q, d));
-const liveBadge = (q, d) => `<a href="${GN(q, d)}" target=_blank rel=noopener style="color:var(--ac);font-weight:600;text-decoration:none;">View Live Feed ›</a>`;
+const live = (t, q, d = '1d') => A(t, 'Live headlines · ' + (d == '1d' ? 'last 24 h' : d == '2d' ? 'last 48 h' : d == '72h' ? 'last 72 h' : d), GN(q, d));
 
 const CATS = ['Major News', 'Diplomacy', 'Economics', 'Local', 'Elections', 'International', 'Active Wars'];
 const INT = {
+    'United States': 'United States',
+    'United Kingdom': 'United Kingdom',
+    'Australia': 'Australia',
+    'Germany': 'Germany',
+    'France': 'France',
+    'Italy': 'Italy',
+    'Poland': 'Poland',
+    'Ukraine': 'Ukraine',
+    'China': 'China',
     'United Nations': 'United Nations UN',
-    'African Union': 'African Union AU',
-    'Antarctica': 'Antarctica treaty polar',
-    'Nordic Council': 'Nordic Council Scandinavia',
     'European Union': 'European Union',
     'NATO': 'NATO',
     'G7': 'G7',
     'G20': 'G20',
     'USMCA': 'CUSMA USMCA',
-    'Australia': 'Australia',
-    'United States': 'United States',
-    'United Kingdom': 'United Kingdom'
+    'African Union': 'African Union AU',
+    'Antarctica': 'Antarctica treaty polar',
+    'Nordic Council': 'Nordic Council Scandinavia'
 };
 const P = {
     'Ontario': ['Toronto', 'Mississauga', 'Brampton'],
@@ -536,18 +609,14 @@ const P = {
     'Northwest Territories': ['Yellowknife', 'Hay River', 'Inuvik'],
     'Nunavut': ['Iqaluit', 'Rankin Inlet', 'Arviat']
 };
+
+// Only future-facing elections retained (past October 2026 filtered out)
 const EL = [
-    ['C', 'B.C. general election', '2026-10-19'],
-    ['C', 'Ontario municipal &amp; school board elections', '2026-10-26'],
-    ['C', 'Manitoba municipal elections', '2026-10-28'],
-    ['C', 'Prince Edward Island municipal elections', '2026-11-02'],
-    ['C', 'Saskatchewan municipal elections', '2026-11-11'],
-    ['C', 'Yukon municipal elections', '2026-12-03'],
-    ['W', 'Sweden general election', '2026-09-13'],
-    ['W', 'Brazil general election (1st round)', '2026-10-04'],
-    ['W', 'Israel Knesset (legal deadline)', '2026-10-27'],
+    ['C', 'New Zealand general election', '2026-11-21'],
     ['W', 'U.S. midterm elections', '2026-11-03'],
-    ['W', 'New Zealand general election', '2026-11-21']
+    ['W', 'New Zealand general election', '2026-11-21'],
+    ['W', 'Gambia presidential election', '2026-12-05'],
+    ['W', 'South Sudan general election', '2026-12-22']
 ];
 const BOC = ['2026-01-28', '2026-03-18', '2026-04-29', '2026-06-10', '2026-07-15', '2026-09-02', '2026-10-28', '2026-12-09'];
 let ca = { c: 0, s: 0, y: 0, w: '1d' };
@@ -582,14 +651,14 @@ function pCa() {
         ['Currency', 'Canadian dollar (CAD)'],
         ['Languages', 'English · French']
     ].map(r => row(...r)).join('')}</div>
-    <div class=chips style="margin-top:8px">${['Canada', 'Economy of Canada', 'Politics of Canada', 'Foreign relations of Canada', 'Trade of Canada'].map(t => `<a href="${WK(t)}" target=_blank rel=noopener>📖 ${t}</a>`).join('')}</div></section>` + chips(CATS, ca.c, 'cC'), b = '';
+    <div class=chips style="margin-top:10px">${['Canada', 'Economy of Canada', 'Politics of Canada', 'Foreign relations of Canada', 'Trade of Canada'].map(t => `<a href="${WK(t)}" target=_blank rel=noopener>📖 ${t}</a>`).join('')}</div></section>` + chips(CATS, ca.c, 'cC'), b = '';
 
     if (c == 'Major News') {
         b = `<div class=seg><button class="${w == '1d' ? 'on' : ''}" onclick="cW('1d')">Last 24 h</button><button class="${w == '2d' ? 'on' : ''}" onclick="cW('2d')">⏪ 48 h rewind</button></div>` +
             live(w == '1d' ? 'Top Canadian stories' : 'Biggest stories of the last 48 h', 'Canada top news', w) +
             live('Politics &amp; Parliament', 'Canada politics Ottawa', w) +
             live('Business &amp; markets', 'Canada economy TSX', w) +
-            `<section class=card><h2>Markets &amp; Bank of Canada</h2><div class=res>${row('Next BoC rate decision', nextBoC())}</div><small>Per BoC's published 2026 calendar — confirm on bankofcanada.ca.</small></section>` +
+            `<section class=card><h2>Markets &amp; Bank of Canada</h2><div class=res>${row('Next BoC rate decision', nextBoC())}</div><small style="margin-top:8px">Per BoC's published 2026 calendar — confirm on bankofcanada.ca.</small></section>` +
             A('TSX Composite — % change', 'Live quote · Yahoo Finance', YF('^GSPTSE')) +
             A('USD / CAD', 'Live quote · Yahoo Finance', YF('CAD=X')) +
             A('CPI &amp; inflation', 'Statistics Canada', 'https://www.statcan.gc.ca/en/subjects-start/prices_and_price_indexes/consumer_price_indexes') +
@@ -609,7 +678,7 @@ function pCa() {
             live('Inflation &amp; prices', 'Canada inflation prices CPI') +
             live('Jobs &amp; wages', 'Canada unemployment jobs report') +
             live('Housing affordability', 'Canada housing affordability rent') +
-            '<h2 style="margin:14px 2px 8px">Ongoing issues</h2>' +
+            '<h2 style="margin:16px 2px 10px">Ongoing issues</h2>' +
             live('Health-care wait times', 'Canada health care wait times', '2d') +
             live('Wildfires &amp; climate', 'Canada wildfires climate', '2d') +
             live('Immigration levels', 'Canada immigration levels', '2d') +
@@ -624,13 +693,24 @@ function pCa() {
     } else if (c == 'Elections') {
         h += chips(['Canada', 'International'], ca.s, 'cS');
         const k = ca.s ? 'W' : 'C';
-        b = `<section class=card><h2>${ca.s ? 'International' : 'Canada'} · 2026</h2>` +
-            EL.filter(e => e[0] == k).sort((a, b) => a[2] < b[2] ? -1 : 1).map(e => {
-                const d = new Date(e[2] + 'T00:00:00'), n = (d - new Date()) / 864e5, t = n < -1 ? 'Held' : n <= 31 ? 'Upcoming' : 'Later';
-                return `<div class=ev><b>${e[1]}</b><em class=${t}>${t}</em><small>${d.toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' })}</small></div>`;
-            }).join('') +
-            `<small style="margin-top:8px">${ca.s ? 'Scheduled dates; check the feed for results and changes.' : 'No federal general election is scheduled (next fixed date: October 2029); by-elections follow the Elections Canada calendar.'}</small></section>` +
-            (ca.s ? live('U.S Mid-Term election updates', 'US midterm elections 2026 Congress Senate House', '2d') + live('World election news', 'world elections 2026', '2d') + live('Results &amp; upcoming votes', 'election results', '2d') + live('Brazil election news and updates', 'Brazil general election results politics', '2d') : A('Elections Canada', 'Official site · by-elections &amp; calendar', 'https://www.elections.ca') + live('Canadian election news', 'Canada election by-election provincial', '2d') + live('B.C. election news and results', 'British Columbia election results BC politics', '2d'));
+        const today = new Date();
+        const unheldElections = EL.filter(e => e[0] == k && new Date(e[2] + 'T23:59:59') >= today).sort((a, b) => a[2] < b[2] ? -1 : 1);
+        
+        b = `<section class=card><h2>${ca.s ? 'International' : 'Canada'} · Upcoming Elections</h2>` +
+            (unheldElections.length ? unheldElections.map(e => {
+                const d = new Date(e[2] + 'T00:00:00');
+                return `<div class=ev><b>${e[1]}</b><em class="Upcoming">Upcoming</em><small>${d.toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</small></div>`;
+            }).join('') : `<p style="color:var(--mu);margin:0;font-size:14px;">No upcoming elections scheduled within the immediate window.</p>`) +
+            `<small style="margin-top:10px">Scheduled dates; check live feeds for details and updates.</small></section>` +
+            (ca.s ? 
+                live('Israel election news and results', 'Israel election Knesset politics results', '2d') +
+                live('U.S Mid-Term election updates', 'US midterm elections Congress Senate House', '2d') +
+                live('World election news', 'world elections', '2d')
+                : 
+                A('Elections Canada', 'Official site · by-elections &amp; calendar', 'https://www.elections.ca') +
+                live('Ontario Municipal Elections news and updates', 'Ontario municipal elections news updates', '2d') +
+                live('B.C. election news and results', 'British Columbia election results BC politics', '72h')
+            );
     } else if (c == 'Active Wars') {
         h += chips(['Strategic Updates', 'Canada Military'], ca.s, 'cS');
         if (ca.s == 0) {
@@ -658,7 +738,10 @@ function pCa() {
         }
     } else {
         const ks = Object.keys(INT), k = ks[ca.s], q = INT[k];
-        h += chips(ks, ca.s, 'cS');
+        h += `<div class="dropdown-container">
+            <label for="int-select">Select Country or Organization:</label>
+            <select id="int-select" onchange="cS(+this.value)">${opts(ks, ca.s)}</select>
+        </div>`;
         b = live('Canada &amp; ' + k, 'Canada ' + q) +
             live('Latest ' + k + ' headlines', q) +
             (k == 'United States' || k == 'USMCA' ? live('Tariffs &amp; trade', 'Canada US tariffs trade') : '') +
@@ -667,7 +750,6 @@ function pCa() {
     return h + b + '<small style="padding:4px">Headlines open live in Google News (Canada edition). Market figures open on live quote pages.</small>';
 }
 
-// Guarantee execution once DOM is ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', draw);
 } else {
