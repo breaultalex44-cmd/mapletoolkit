@@ -197,6 +197,34 @@ small {
     box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 
+/* Category & Nav Grids */
+.cat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 8px;
+    margin-bottom: 20px;
+}
+.cat-btn {
+    min-height: 44px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--bd);
+    background: var(--cd);
+    color: var(--tx);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+.cat-btn.on {
+    background: var(--ac);
+    color: #ffffff;
+    border-color: var(--ac);
+    box-shadow: 0 2px 8px rgba(213, 43, 30, 0.25);
+}
+
 .chips {
     display: flex;
     gap: 8px;
@@ -610,9 +638,12 @@ const P = {
     'Nunavut': ['Iqaluit', 'Rankin Inlet', 'Arviat']
 };
 
-// Only future-facing elections retained (past October 2026 filtered out)
+// Next 2 months elections (late Oct - Dec 2026)
 const EL = [
-    ['C', 'New Zealand general election', '2026-11-21'],
+    ['C', 'Manitoba municipal elections', '2026-10-28'],
+    ['C', 'Prince Edward Island municipal elections', '2026-11-02'],
+    ['C', 'Saskatchewan municipal elections', '2026-11-09'],
+    ['C', 'Yukon municipal elections', '2026-12-03'],
     ['W', 'U.S. midterm elections', '2026-11-03'],
     ['W', 'New Zealand general election', '2026-11-21'],
     ['W', 'Gambia presidential election', '2026-12-05'],
@@ -621,7 +652,6 @@ const EL = [
 const BOC = ['2026-01-28', '2026-03-18', '2026-04-29', '2026-06-10', '2026-07-15', '2026-09-02', '2026-10-28', '2026-12-09'];
 let ca = { c: 0, s: 0, y: 0, w: '1d' };
 
-const chips = (a, on, f) => `<div class=chips>${a.map((x, i) => `<button class="${i == on ? 'on' : ''}" onclick="${f}(${i})">${x}</button>`).join('')}</div>`;
 const cC = i => { ca.c = i; ca.s = 0; ca.y = 0; draw(); },
       cS = i => { ca.s = i; ca.y = 0; draw(); },
       cY = i => { ca.y = i; draw(); },
@@ -636,118 +666,128 @@ function nextBoC() {
 
 function pCa() {
     const c = CATS[ca.c], w = ca.w;
-    let h = `<h1>🇨🇦 Canada</h1>
-    <section class=card><h2>At a glance</h2>
-    <div class=res>${[
-        ['Population', '~40.5M – 41.8M (2026)'],
-        ['GDP', '~ $2.24 Trillion CAD'],
-        ['GDP per Capita', '~ $58,400 CAD'],
-        ['Population density', '4 people / km²'],
-        ['Capital', 'Ottawa'],
-        ['Area', '9.98 M km² (2nd largest)'],
-        ['Provinces / territories', '10 / 3'],
-        ['Government', 'Federal parliamentary constitutional monarchy (Prime Minister Mark Carney)'],
-        ['Key Departments & Agencies', 'Global Affairs (@GlobalAffairsCA) · National Defence (@NationalDefence) · Finance Canada (@FinanceCanada) · PCO (@PrivyCouncilCA) · StatCan (@StatCan_eng)'],
-        ['Currency', 'Canadian dollar (CAD)'],
-        ['Languages', 'English · French']
-    ].map(r => row(...r)).join('')}</div>
-    <div class=chips style="margin-top:10px">${['Canada', 'Economy of Canada', 'Politics of Canada', 'Foreign relations of Canada', 'Trade of Canada'].map(t => `<a href="${WK(t)}" target=_blank rel=noopener>📖 ${t}</a>`).join('')}</div></section>` + chips(CATS, ca.c, 'cC'), b = '';
+    let h = `<h1>🇨🇦 Canada Hub</h1>
+    <section class="card" style="padding:18px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <h2 style="margin:0;">At a Glance</h2>
+            <span class="status-badge" style="margin:0;">Canada Dashboard</span>
+        </div>
+        <div class="res">${[
+            ['Population', '~40.5M – 41.8M (2026)'],
+            ['GDP', '~ $2.24 Trillion CAD'],
+            ['GDP per Capita', '~ $58,400 CAD'],
+            ['Capital', 'Ottawa'],
+            ['Government', 'Parliamentary Monarchy (PM Mark Carney)'],
+            ['Currency', 'Canadian Dollar (CAD)'],
+            ['Languages', 'English · French']
+        ].map(r => row(...r)).join('')}</div>
+        <div class="chips" style="margin-top:12px;padding-bottom:0;">${['Canada Overview', 'Economy', 'Politics', 'Trade'].map(t => `<a href="${WK(t)}" target=_blank rel=noopener>📖 ${t}</a>`).join('')}</div>
+    </section>
 
-    if (c == 'Major News') {
-        b = `<div class=seg><button class="${w == '1d' ? 'on' : ''}" onclick="cW('1d')">Last 24 h</button><button class="${w == '2d' ? 'on' : ''}" onclick="cW('2d')">⏪ 48 h rewind</button></div>` +
-            live(w == '1d' ? 'Top Canadian stories' : 'Biggest stories of the last 48 h', 'Canada top news', w) +
-            live('Politics &amp; Parliament', 'Canada politics Ottawa', w) +
-            live('Business &amp; markets', 'Canada economy TSX', w) +
-            `<section class=card><h2>Markets &amp; Bank of Canada</h2><div class=res>${row('Next BoC rate decision', nextBoC())}</div><small style="margin-top:8px">Per BoC's published 2026 calendar — confirm on bankofcanada.ca.</small></section>` +
-            A('TSX Composite — % change', 'Live quote · Yahoo Finance', YF('^GSPTSE')) +
-            A('USD / CAD', 'Live quote · Yahoo Finance', YF('CAD=X')) +
-            A('CPI &amp; inflation', 'Statistics Canada', 'https://www.statcan.gc.ca/en/subjects-start/prices_and_price_indexes/consumer_price_indexes') +
-            A('Key interest rate', 'Bank of Canada', 'https://www.bankofcanada.ca/core-functions/monetary-policy/key-interest-rate/') +
-            live('Bank of Canada announcements', 'Bank of Canada interest rate decision', w) +
-            live('How markets are reacting', 'TSX reaction Canadian dollar', w) +
-            live('Prices &amp; CPI', 'Canada inflation CPI grocery prices', w);
-    } else if (c == 'Diplomacy') {
-        b = live('Canadian diplomacy', 'Canada diplomacy foreign policy') +
-            live('Global Affairs Canada', 'Global Affairs Canada') +
-            live('Sanctions &amp; foreign minister', 'Canada sanctions foreign minister') +
-            live('Consular &amp; travel advisories', 'Canada travel advisory consular') +
-            A('Background', 'Wikipedia · Foreign relations of Canada', WK('Foreign relations of Canada'));
-    } else if (c == 'Economics') {
-        b = live('Economy &amp; GDP', 'Canada economy GDP') +
-            live('Trade &amp; tariffs', 'Canada trade tariffs exports') +
-            live('Inflation &amp; prices', 'Canada inflation prices CPI') +
-            live('Jobs &amp; wages', 'Canada unemployment jobs report') +
-            live('Housing affordability', 'Canada housing affordability rent') +
-            '<h2 style="margin:16px 2px 10px">Ongoing issues</h2>' +
-            live('Health-care wait times', 'Canada health care wait times', '2d') +
-            live('Wildfires &amp; climate', 'Canada wildfires climate', '2d') +
-            live('Immigration levels', 'Canada immigration levels', '2d') +
-            live('Reconciliation &amp; Indigenous issues', 'Canada Indigenous reconciliation', '2d') +
-            live('Defence spending', 'Canada defence spending', '2d');
-    } else if (c == 'Local') {
+    <!-- Navigation Category Grid -->
+    <div class="cat-grid">
+        ${CATS.map((catName, idx) => `<button class="cat-btn ${idx === ca.c ? 'on' : ''}" onclick="cC(${idx})">${catName}</button>`).join('')}
+    </div>`;
+
+    let b = '';
+
+    if (c === 'Major News') {
+        b = `<div class="seg"><button class="${w == '1d' ? 'on' : ''}" onclick="cW('1d')">Last 24 h</button><button class="${w == '2d' ? 'on' : ''}" onclick="cW('2d')">⏪ 48 h rewind</button></div>` +
+            live(w == '1d' ? 'Top Canadian Stories' : 'Biggest Stories (Last 48 h)', 'Canada top news', w) +
+            live('Politics & Parliament', 'Canada politics Ottawa', w) +
+            live('Business & Markets', 'Canada economy TSX', w) +
+            `<section class="card"><h2>Markets & Bank of Canada</h2><div class="res">${row('Next BoC Rate Decision', nextBoC())}</div><small style="margin-top:8px">Per BoC's official calendar — confirm on bankofcanada.ca.</small></section>` +
+            A('TSX Composite — % Change', 'Live quote · Yahoo Finance', YF('^GSPTSE')) +
+            A('USD / CAD Exchange Rate', 'Live quote · Yahoo Finance', YF('CAD=X')) +
+            A('CPI & Inflation Tracker', 'Statistics Canada', 'https://www.statcan.gc.ca/en/subjects-start/prices_and_price_indexes/consumer_price_indexes') +
+            A('Key Interest Rate Policy', 'Bank of Canada', 'https://www.bankofcanada.ca/core-functions/monetary-policy/key-interest-rate/') +
+            live('Bank of Canada Announcements', 'Bank of Canada interest rate decision', w) +
+            live('How Markets Are Reacting', 'TSX reaction Canadian dollar', w);
+    } else if (c === 'Diplomacy') {
+        b = live('Canadian Foreign Diplomacy', 'Canada diplomacy foreign policy') +
+            live('Global Affairs Canada Feed', 'Global Affairs Canada') +
+            live('Sanctions & Foreign Relations', 'Canada sanctions foreign minister') +
+            live('Consular & Travel Advisories', 'Canada travel advisory consular') +
+            A('Foreign Policy Background', 'Wikipedia · Foreign relations of Canada', WK('Foreign relations of Canada'));
+    } else if (c === 'Economics') {
+        b = live('National Economy & GDP', 'Canada economy GDP') +
+            live('Trade, Exports & Tariffs', 'Canada trade tariffs exports') +
+            live('Inflation & Consumer Prices', 'Canada inflation prices CPI') +
+            live('Jobs & Unemployment Report', 'Canada unemployment jobs report') +
+            live('Housing & Rent Affordability', 'Canada housing affordability rent') +
+            '<h2 style="margin:20px 2px 10px">Key National Topics</h2>' +
+            live('Healthcare System Status', 'Canada health care wait times', '2d') +
+            live('Wildfires & Climate Action', 'Canada wildfires climate', '2d') +
+            live('Immigration Policies', 'Canada immigration levels', '2d') +
+            live('Defence Spending & Policy', 'Canada defence spending', '2d');
+    } else if (c === 'Local') {
         const pv = Object.keys(P), p = pv[ca.s], cs = P[p];
-        h += chips(pv, ca.s, 'cS') + chips(['Overview', ...cs, 'Ottawa 🏛'], ca.y, 'cY');
-        b = ca.y == 0 ? live(p + ' headlines', p + ' news') + live(p + ' politics', p + ' legislature government') + live(p + ' economy', p + ' economy jobs') + (p == 'Alberta' ? live('Alberta referendum talk', 'Alberta referendum talk') : '') :
-            ca.y == 4 ? live('Ottawa — reserved spot', 'Ottawa news') + live('Parliament Hill', 'Parliament Hill Ottawa') + A('Background', 'Wikipedia · Ottawa', WK('Ottawa')) :
-            live(cs[ca.y - 1] + ' headlines', cs[ca.y - 1] + ' ' + p + ' news') + live(cs[ca.y - 1] + ' city hall', cs[ca.y - 1] + ' city council') + A('Background', 'Wikipedia · ' + cs[ca.y - 1], WK(cs[ca.y - 1] + ' ' + p));
-    } else if (c == 'Elections') {
-        h += chips(['Canada', 'International'], ca.s, 'cS');
+        b = `<div class="dropdown-container">
+                <label for="prov-select">Select Province or Territory:</label>
+                <select id="prov-select" onchange="cS(+this.value)">${opts(pv, ca.s)}</select>
+            </div>
+            <div class="chips">${['Overview', ...cs, 'Ottawa 🏛'].map((x, i) => `<button class="${i == ca.y ? 'on' : ''}" onclick="cY(${i})">${x}</button>`).join('')}</div>` +
+            (ca.y === 0 ? live(p + ' News Headlines', p + ' news') + live(p + ' Legislature & Politics', p + ' legislature government') + live(p + ' Regional Economy', p + ' economy jobs') :
+            ca.y === 4 ? live('Ottawa News Bulletin', 'Ottawa news') + live('Parliament Hill Updates', 'Parliament Hill Ottawa') + A('Background', 'Wikipedia · Ottawa', WK('Ottawa')) :
+            live(cs[ca.y - 1] + ' City News', cs[ca.y - 1] + ' ' + p + ' news') + live(cs[ca.y - 1] + ' City Hall', cs[ca.y - 1] + ' city council') + A('Background', 'Wikipedia · ' + cs[ca.y - 1], WK(cs[ca.y - 1] + ' ' + p)));
+    } else if (c === 'Elections') {
         const k = ca.s ? 'W' : 'C';
         const today = new Date();
-        const unheldElections = EL.filter(e => e[0] == k && new Date(e[2] + 'T23:59:59') >= today).sort((a, b) => a[2] < b[2] ? -1 : 1);
+        const unheldElections = EL.filter(e => e[0] === k && new Date(e[2] + 'T23:59:59') >= today).sort((a, b) => a[2] < b[2] ? -1 : 1);
         
-        b = `<section class=card><h2>${ca.s ? 'International' : 'Canada'} · Upcoming Elections</h2>` +
+        b = `<div class="seg"><button class="${ca.s == 0 ? 'on' : ''}" onclick="cS(0)">🇨🇦 Canada</button><button class="${ca.s == 1 ? 'on' : ''}" onclick="cS(1)">🌍 International</button></div>
+            <section class="card"><h2>${ca.s ? 'International' : 'Canada'} · Upcoming Elections (Next 2 Months)</h2>` +
             (unheldElections.length ? unheldElections.map(e => {
                 const d = new Date(e[2] + 'T00:00:00');
-                return `<div class=ev><b>${e[1]}</b><em class="Upcoming">Upcoming</em><small>${d.toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</small></div>`;
-            }).join('') : `<p style="color:var(--mu);margin:0;font-size:14px;">No upcoming elections scheduled within the immediate window.</p>`) +
-            `<small style="margin-top:10px">Scheduled dates; check live feeds for details and updates.</small></section>` +
+                return `<div class="ev"><b>${e[1]}</b><em class="Upcoming">Upcoming</em><small>${d.toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</small></div>`;
+            }).join('') : `<p style="color:var(--mu);margin:0;font-size:14px;">No upcoming elections scheduled in the immediate 2-month window.</p>`) +
+            `<small style="margin-top:10px">Scheduled dates; check live feeds for ongoing developments.</small></section>` +
             (ca.s ? 
-                live('Israel election news and results', 'Israel election Knesset politics results', '2d') +
-                live('U.S Mid-Term election updates', 'US midterm elections Congress Senate House', '2d') +
-                live('World election news', 'world elections', '2d')
+                live('U.S. Midterm Election Live Updates', 'US midterm elections Congress Senate House', '2d') +
+                live('Israel Election News & Knesset Updates', 'Israel election Knesset politics results', '2d') +
+                live('World Elections Headlines', 'world elections', '2d')
                 : 
-                A('Elections Canada', 'Official site · by-elections &amp; calendar', 'https://www.elections.ca') +
-                live('Ontario Municipal Elections news and updates', 'Ontario municipal elections news updates', '2d') +
-                live('B.C. election news and results', 'British Columbia election results BC politics', '72h')
+                A('Elections Canada Official Portal', 'By-elections, voter registration & calendar', 'https://www.elections.ca') +
+                live('Ontario Municipal Elections News & Updates', 'Ontario municipal elections news updates', '2d') +
+                live('B.C. Election & Political Headlines', 'British Columbia election results BC politics', '72h')
             );
-    } else if (c == 'Active Wars') {
-        h += chips(['Strategic Updates', 'Canada Military'], ca.s, 'cS');
-        if (ca.s == 0) {
-            b = live('Europe · Strategic Updates', 'Europe war conflict strategic updates', '1d') +
-                live('Middle East · Strategic Updates', 'Middle East conflict war updates', '1d') +
-                live('Africa · Strategic Updates', 'Africa conflict civil war updates', '1d') +
-                live('Asia-Pacific · Strategic Updates', 'Asia Pacific military tension conflict', '1d') +
-                live('Americas & Global · Strategic Updates', 'global conflict strategic updates', '1d');
+    } else if (c === 'Active Wars') {
+        b = `<div class="seg"><button class="${ca.s == 0 ? 'on' : ''}" onclick="cS(0)">Strategic Updates</button><button class="${ca.s == 1 ? 'on' : ''}" onclick="cS(1)">Canadian Military</button></div>`;
+        if (ca.s === 0) {
+            b += live('Europe Strategic Updates', 'Europe war conflict strategic updates', '1d') +
+                 live('Middle East Strategic Updates', 'Middle East conflict war updates', '1d') +
+                 live('Africa Strategic Updates', 'Africa conflict civil war updates', '1d') +
+                 live('Asia-Pacific Military Tensions', 'Asia Pacific military tension conflict', '1d') +
+                 live('Americas & Global Conflicts', 'global conflict strategic updates', '1d');
         } else {
-            h += chips(['Overview', 'Canadian Army', 'Royal Canadian Navy', 'Royal Canadian Air Force'], ca.y, 'cY');
-            if (ca.y == 0) {
-                b = live('Canadian Military Overview', 'Canadian Armed Forces military news', '1d') +
-                    live('Strategic & Defence Policy', 'Canada defence policy military strategic', '1d') +
-                    live('Defence Procurements', 'Canada military procurement equipment contract', '1d');
-            } else if (ca.y == 1) {
-                b = live('Canadian Army · Strategic & Deployments', 'Canadian Army operations deployments', '1d') +
-                    live('Army Procurements & Equipment', 'Canadian Army vehicle procurement equipment', '1d');
-            } else if (ca.y == 2) {
-                b = live('Royal Canadian Navy · Strategic & Deployments', 'Royal Canadian Navy operations fleet deployments', '1d') +
-                    live('Navy Procurements & Shipbuilding', 'Royal Canadian Navy ship procurement shipbuilding contract', '1d');
-            } else if (ca.y == 3) {
-                b = live('Royal Canadian Air Force · Strategic & Deployments', 'Royal Canadian Air Force operations aircraft deployments', '1d') +
-                    live('Air Force Procurements & Fleet', 'RCAF aircraft procurement fighter jet radar', '1d');
+            b += `<div class="chips">${['Overview', 'Canadian Army', 'Royal Canadian Navy', 'RCAF'].map((x, i) => `<button class="${i == ca.y ? 'on' : ''}" onclick="cY(${i})">${x}</button>`).join('')}</div>`;
+            if (ca.y === 0) {
+                b += live('Canadian Armed Forces Overview', 'Canadian Armed Forces military news', '1d') +
+                     live('Defence Policy & Strategy', 'Canada defence policy military strategic', '1d') +
+                     live('Military Procurements', 'Canada military procurement equipment contract', '1d');
+            } else if (ca.y === 1) {
+                b += live('Canadian Army Operations', 'Canadian Army operations deployments', '1d') +
+                     live('Army Equipment & Contracts', 'Canadian Army vehicle procurement equipment', '1d');
+            } else if (ca.y === 2) {
+                b += live('Royal Canadian Navy Fleet Deployments', 'Royal Canadian Navy operations fleet deployments', '1d') +
+                     live('Navy Shipbuilding Procurements', 'Royal Canadian Navy ship procurement shipbuilding contract', '1d');
+            } else if (ca.y === 3) {
+                b += live('RCAF Aircraft Deployments', 'Royal Canadian Air Force operations aircraft deployments', '1d') +
+                     live('Air Force Procurement & Jet Fleet', 'RCAF aircraft procurement fighter jet radar', '1d');
             }
         }
     } else {
         const ks = Object.keys(INT), k = ks[ca.s], q = INT[k];
         h += `<div class="dropdown-container">
-            <label for="int-select">Select Country or Organization:</label>
+            <label for="int-select">Select Country or Global Organization:</label>
             <select id="int-select" onchange="cS(+this.value)">${opts(ks, ca.s)}</select>
         </div>`;
-        b = live('Canada &amp; ' + k, 'Canada ' + q) +
-            live('Latest ' + k + ' headlines', q) +
-            (k == 'United States' || k == 'USMCA' ? live('Tariffs &amp; trade', 'Canada US tariffs trade') : '') +
-            A('Background', 'Wikipedia · Canada and ' + k, WK('Canada ' + q));
+        b = live('Canada & ' + k + ' Affairs', 'Canada ' + q) +
+            live('Latest ' + k + ' News', q) +
+            (k === 'United States' || k === 'USMCA' ? live('Bilateral Tariffs & Trade', 'Canada US tariffs trade') : '') +
+            A('Background Information', 'Wikipedia · Canada and ' + k, WK('Canada ' + q));
     }
-    return h + b + '<small style="padding:4px">Headlines open live in Google News (Canada edition). Market figures open on live quote pages.</small>';
+    return h + b + '<small style="padding:6px 2px;">Headlines open live in Google News. Financial metrics open on Yahoo Finance live quote pages.</small>';
 }
 
 if (document.readyState === 'loading') {
