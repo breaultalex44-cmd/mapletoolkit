@@ -478,7 +478,7 @@ const row = (l, v) => `<div><span>${l}</span><b>${v}</b></div>`;
 const opts = (a, s) => a.map((x, i) => `<option value="${i}" ${i == s ? 'selected' : ''}>${x}</option>`).join('');
 
 let sys = ld('sys', 'metric'), tab = ld('tab', 'calc');
-const TABS = [['calc', '🧮', 'Calculators'], ['shop', '🛒', 'Ontario Tax Hub'], ['ca', '🇨🇦', 'Canada'], ['rem', '🌺', 'Remembrance']];
+const TABS = [['calc', '🧮', 'Calculators'], ['shop', '🛒', 'Ontario Tax Hub'], ['ca', '🇨🇦', 'Canada']];
 
 function go(t) {
     tab = t;
@@ -494,7 +494,7 @@ function draw() {
         if (!navEl || !appEl) return;
 
         navEl.innerHTML = TABS.map(t => `<button class="${t[0] == tab ? 'on' : ''}" onclick="go('${t[0]}')"><span>${t[1]}</span>${t[2]}</button>`).join('');
-        const renderer = { calc: pCalc, shop: pShop, ca: pCa, rem: pRem }[tab];
+        const renderer = { calc: pCalc, shop: pShop, ca: pCa }[tab];
         appEl.innerHTML = renderer ? renderer() : '<p>Loading...</p>';
         if (tab == 'calc') { cr(); tx(); tp(); mg(); calcItax(); calcTfsa(); }
     } catch (err) {
@@ -846,58 +846,6 @@ function pCa() {
             A('Background Information', 'Wikipedia · Canada and ' + k, WK('Canada ' + q));
     }
     return h + b + '<small style="padding:6px 2px;">Headlines open live in Google News. Financial metrics open on Yahoo Finance live quote pages.</small>';
-}
-
-/* ---------- REMEMBRANCE DAY COMMEMORATION ---------- */
-function pRem() {
-    return `<h1>🌺 Remembrance Day Commemoration</h1>
-    <section class="card" style="border-left: 4px solid var(--ac);">
-        <div class="status-badge" style="background:var(--ac-light);color:var(--ac);margin-bottom:10px;">Lest We Forget · November 11</div>
-        <h2 style="font-size:20px;margin:0 0 8px;">Honouring Canada's Fallen & Veterans</h2>
-        <p style="margin:0;color:var(--mu);line-height:1.5;">Every year on November 11 at 11:00 a.m., Canadians pause for two minutes of silence to honor the men and women who served and sacrificed for Canada's freedom and peace.</p>
-    </section>
-
-    <section class="card">
-        <h2>📜 "In Flanders Fields"</h2>
-        <small style="margin-bottom:12px;font-weight:600;color:var(--tx);">By Lieutenant-Colonel John McCrae (May 1915)</small>
-        <div style="font-style:italic;line-height:1.65;background:var(--ch);padding:16px;border-radius:var(--radius-md);color:var(--tx);font-size:14.5px;">
-            In Flanders fields the poppies blow<br>
-            Between the crosses, row on row,<br>
-            That mark our place; and in the sky<br>
-            The larks, still bravely singing, fly<br>
-            Scarce heard amid the guns below.<br><br>
-            We are the Dead. Short days ago<br>
-            We lived, felt dawn, saw sunset glow,<br>
-            Loved and were loved, and now we lie,<br>
-            In Flanders fields.<br><br>
-            Take up our quarrel with the foe:<br>
-            To you from failing hands we throw<br>
-            The torch; be yours to hold it high.<br>
-            If ye break faith with us who die<br>
-            We shall not sleep, though poppies grow<br>
-            In Flanders fields.
-        </div>
-    </section>
-
-    <section class="card">
-        <h2>🌺 Traditions &amp; History</h2>
-        <div class="res">
-            ${row('The Red Poppy', 'Official symbol since 1921, inspired by LCol John McCrae')}
-            ${row('Poppy Campaign', 'Organized by The Royal Canadian Legion to support Veterans')}
-            ${row('Two Minutes of Silence', 'Observed at 11:00 a.m. on the 11th hour of the 11th day')}
-            ${row('National Ceremony', 'Held at the National War Memorial in Ottawa')}
-        </div>
-    </section>
-
-    <section class="card">
-        <h2>🏛 Resources &amp; Live News</h2>
-        ${live('Remembrance Day Ceremonies & News', 'Remembrance Day Canada ceremony Veterans', '72h')}
-        ${live('National War Memorial Ottawa Live News', 'National War Memorial Ottawa Remembrance Day', '72h')}
-        ${A('The Royal Canadian Legion — Poppy Campaign', 'Support Canadian Veterans & Order a Poppy', 'https://www.legion.ca')}
-        ${A('Veterans Affairs Canada', 'Official Memorials, History & Services', 'https://www.veterans.gc.ca')}
-        ${A('Canadian War Museum', 'Exhibitions & Historical Archives', 'https://www.warmuseum.ca')}
-        ${A('In Flanders Fields — Wikipedia', 'Literary history & global impact', WK('In Flanders Fields'))}
-    </section>`;
 }
 
 if (document.readyState === 'loading') {
