@@ -498,7 +498,7 @@ function draw() {
         appEl.innerHTML = renderer ? renderer() : '<p>Loading...</p>';
         if (tab == 'calc') { cr(); tx(); tp(); mg(); calcItax(); calcTfsa(); }
     } catch (err) {
-        document.body.innerHTML = `<div style="padding:20px;color:#c62828;background:#ffebee;border:1px solid #c62828;margin:20px;border-radius:8px;font-family:sans-serif;"><h3>Initialization Error:</h3><pre>${err.stack}</pre><button onclick="localStorageclear();location.reload();" style="margin-top:10px;padding:8px 12px;">Reset Storage & Reload</button></div>`;
+        document.body.innerHTML = `<div style="padding:20px;color:#c62828;background:#ffebee;border:1px solid #c62828;margin:20px;border-radius:8px;font-family:sans-serif;"><h3>Initialization Error:</h3><pre>${err.stack}</pre><button onclick="localStorage.clear();location.reload();" style="margin-top:10px;padding:8px 12px;">Reset Storage & Reload</button></div>`;
     }
 }
 
@@ -523,6 +523,21 @@ const PR = [
     ['Ontario', 5, 8, 'HST'], ['Prince Edward Island', 5, 10, 'HST'], ['Québec', 5, 9.975, 'QST'],
     ['Saskatchewan', 5, 6, 'PST'], ['Yukon', 5, 0, '']
 ];
+const PROV_BRACKETS = {
+    'Alberta': [[60000, 0.10], [148269, 0.12], [177922, 0.13], [237230, 0.14], [Infinity, 0.15]],
+    'British Columbia': [[47937, 0.0506], [95875, 0.077], [110076, 0.105], [133664, 0.1229], [181232, 0.147], [252752, 0.168], [Infinity, 0.205]],
+    'Manitoba': [[47000, 0.108], [100000, 0.1275], [Infinity, 0.174]],
+    'New Brunswick': [[49958, 0.094], [99916, 0.14], [185064, 0.16], [Infinity, 0.195]],
+    'Newfoundland and Labrador': [[43198, 0.087], [86395, 0.145], [154244, 0.158], [215943, 0.178], [275870, 0.198], [551739, 0.208], [1103478, 0.213], [Infinity, 0.218]],
+    'Northwest Territories': [[50597, 0.059], [101198, 0.086], [164525, 0.122], [Infinity, 0.1405]],
+    'Nova Scotia': [[29590, 0.0879], [59180, 0.1495], [93000, 0.1667], [150000, 0.175], [Infinity, 0.21]],
+    'Nunavut': [[53268, 0.04], [106537, 0.07], [173205, 0.09], [Infinity, 0.115]],
+    'Ontario': [[51446, 0.0505], [102894, 0.0915], [150000, 0.1116], [220000, 0.1216], [Infinity, 0.1316]],
+    'Prince Edward Island': [[32656, 0.098], [64313, 0.138], [105000, 0.167], [140000, 0.175], [Infinity, 0.18]],
+    'Québec': [[51780, 0.14], [103545, 0.19], [126000, 0.24], [Infinity, 0.2575]],
+    'Saskatchewan': [[52057, 0.105], [148734, 0.125], [Infinity, 0.145]],
+    'Yukon': [[55867, 0.064], [111733, 0.09], [173205, 0.109], [500000, 0.128], [Infinity, 0.15]]
+};
 let st = { a: '', p: 8, inc: false }, tt = { b: '', p: 15, n: 1 }, mo = { a: '', r: '5', y: 25 };
 let itax = { inc: 65000, prov: 8 };
 let tfsa = { init: 10000, contrib: 500, rate: 6, years: 10 };
@@ -557,7 +572,7 @@ function pCalc() {
     <select onchange="mo.y=+this.value;mg()">${[15, 20, 25, 30].map(y => `<option value=${y} ${y == mo.y ? 'selected' : ''}>${y}-year amortization</option>`).join('')}</select>
     <div id=mgr class=res></div><small style="margin-top:8px">Monthly payments; fixed rates compound semi-annually, as Canadian lenders do.</small></section>
     <section class=card><h2>Canadian Income Tax Estimator</h2>
-    <div class=row><input type=number inputmode=decimal placeholder="Annual Income ($)" value="${itax.inc}" oninput="itax.inc=this.value;calcItax()"></div>
+    <div class=row><input type=number inputmode=decimal placeholder="Annual Income ($)" value="${itax.inc}" oninput="itax.inc=parseFloat(this.value)||0;calcItax()"></div>
     <select onchange="itax.prov=+this.value;calcItax()">${opts(PR.map(p => p[0]), itax.prov)}</select>
     <div id=itxres class=res style="margin-top:10px"></div><small style="margin-top:8px">Approximate estimate based on federal &amp; provincial tax brackets.</small></section>
     <section class=card><h2>TFSA / Savings Growth Calculator</h2>
@@ -586,19 +601,27 @@ function mg() {
     const mgrEl = $('#mgr');
     if (mgrEl) mgrEl.innerHTML = a ? row('Monthly payment', f2(pm)) + row('Total interest', f2(pm * n - a)) + row('Total paid', f2(pm * n)) : 'Enter a mortgage amount.';
 }
+function calcBrackets(income, brackets) {
+    let tax = 0, prev = 0;
+    for (const [top, rate] of brackets) {
+        if (income <= prev) break;
+        const taxable = Math.min(income, top) - prev;
+        tax += taxable * rate;
+        prev = top;
+    }
+    return tax;
+}
 function calcItax() {
-    const inc = parseFloat(itax.inc) || 0;
-    let f = 0;
-    if (inc <= 55867) f = inc * 0.15;
-    else if (inc <= 111733) f = 8380.05 + (inc - 55867) * 0.205;
-    else if (inc <= 173205) f = 19847.08 + (inc - 111733) * 0.26;
-    else if (inc <= 246752) f = 35829.80 + (inc - 173205) * 0.29;
-    else f = 77158.43 + (inc - 246752) * 0.33;
-    let p = inc * 0.10;
-    let total = f + p;
-    let net = inc - total;
+    const inc = Math.max(0, parseFloat(itax.inc) || 0);
+    const fedBrackets = [[55867, 0.15], [111733, 0.205], [173205, 0.26], [246752, 0.29], [Infinity, 0.33]];
+    const f = calcBrackets(inc, fedBrackets);
+    const provName = (PR[itax.prov] && PR[itax.prov][0]) || 'Ontario';
+    const p = calcBrackets(inc, PROV_BRACKETS[provName] || [[Infinity, 0.10]]);
+    const total = f + p;
+    const net = inc - total;
+    const effRate = inc > 0 ? ((total / inc) * 100).toFixed(1) + '%' : '0.0%';
     const itxEl = $('#itxres');
-    if (itxEl) itxEl.innerHTML = row('Gross Income', f2(inc)) + row('Est. Federal Tax', f2(f)) + row('Est. Provincial Tax', f2(p)) + row('Total Est. Tax', f2(total)) + row('Est. Net Income', f2(net)) + row('Effective Tax Rate', ((total / inc) * 100).toFixed(1) + '%');
+    if (itxEl) itxEl.innerHTML = row('Gross Income', f2(inc)) + row('Est. Federal Tax', f2(f)) + row('Est. Provincial Tax', f2(p)) + row('Total Est. Tax', f2(total)) + row('Est. Net Income', f2(net)) + row('Effective Tax Rate', effRate);
 }
 function calcTfsa() {
     const init = parseFloat(tfsa.init) || 0;
@@ -652,6 +675,11 @@ const INT = {
     'Poland': 'Poland',
     'Ukraine': 'Ukraine',
     'China': 'China',
+    'New Zealand': 'New Zealand',
+    'India': 'India',
+    'ASEAN': 'ASEAN Southeast Asia',
+    'Brazil': 'Brazil',
+    'Mexico': 'Mexico',
     'United Nations': 'United Nations UN',
     'European Union': 'European Union',
     'NATO': 'NATO',
@@ -678,16 +706,36 @@ const P = {
     'Nunavut': ['Iqaluit', 'Rankin Inlet', 'Arviat']
 };
 
-// Next 2 months elections (late Oct - Dec 2026)
+// Elections for December 2026, January and February 2027
 const EL = [
-    ['C', 'Manitoba municipal elections', '2026-10-28'],
-    ['C', 'Prince Edward Island municipal elections', '2026-11-02'],
-    ['C', 'Saskatchewan municipal elections', '2026-11-09'],
     ['C', 'Yukon municipal elections', '2026-12-03'],
-    ['W', 'U.S. midterm elections', '2026-11-03'],
-    ['W', 'New Zealand general election', '2026-11-21'],
+    ['C', 'Green Party of New Brunswick leadership election', '2026-12-05'],
+    ['C', 'Six Canadian federal by-elections (ON, QC, SK)', '2026-12-07'],
+    ['C', 'Northwest Territories municipal elections', '2026-12-14'],
+    ['C', 'Greater Napanee Ward 3 municipal by-election (ON)', '2027-01-19'],
+    ['C', 'North Battleford municipal by-election (SK)', '2027-01-21'],
+    ['C', 'PEI NDP & PC leadership elections', '2027-02-07'],
+    ['C', 'Quebec Liberal Party leadership election', '2027-02-13'],
+    ['C', 'Mahone Bay municipal special election (NS)', '2027-02-14'],
+    ['C', 'Saint-Cyrille-de-Wendover municipal by-election (QC)', '2027-02-15'],
+    ['C', 'Cariboo Regional District Area A by-election (BC)', '2027-02-21'],
+    ['C', 'Lac-Sergent, Lyster & Saint-Donat municipal by-elections (QC)', '2027-02-22'],
+    ['C', 'County of Northern Lights municipal by-election (AB)', '2027-02-22'],
+    ['C', 'Chicoutimi provincial by-election (QC)', '2027-02-23'],
+    ['C', 'Montrose municipal by-election (BC)', '2027-02-28'],
     ['W', 'Gambia presidential election', '2026-12-05'],
-    ['W', 'South Sudan general election', '2026-12-22']
+    ['W', 'Northern Cyprus parliamentary election', '2026-12-06'],
+    ['W', 'Fiji constitutional referendum', '2026-12-09'],
+    ['W', 'Haiti general election (Phase 1)', '2026-12-13'],
+    ['W', 'South Sudan general election', '2026-12-22'],
+    ['W', 'Serbia presidential election', '2026-12-27'],
+    ['W', 'Nigeria general election (Presidential & National Assembly)', '2027-01-16'],
+    ['W', 'Kyrgyzstan presidential election', '2027-01-27'],
+    ['W', 'Germany presidential election', '2027-01-30'],
+    ['W', 'Nigeria governorship & state assembly elections', '2027-02-06'],
+    ['W', 'South Sudan general election (rescheduled)', '2027-02-11'],
+    ['W', 'Haiti general election (Phase 2)', '2027-02-21'],
+    ['W', 'El Salvador general election', '2027-02-28']
 ];
 const BOC = ['2026-01-28', '2026-03-18', '2026-04-29', '2026-06-10', '2026-07-15', '2026-09-02', '2026-10-28', '2026-12-09'];
 let ca = { c: 0, s: 0, y: 0, w: '1d' };
@@ -801,37 +849,34 @@ function pCa() {
             }).join('') : `<p style="color:var(--mu);margin:0;font-size:14px;">No upcoming elections scheduled in the immediate 2-month window.</p>`) +
             `<small style="margin-top:10px">Scheduled dates; check live feeds for ongoing developments.</small></section>` +
             (ca.s ? 
-                live('U.S. Midterm Election Live Updates', 'US midterm elections Congress Senate House', '2d') +
-                live('Israel Election News & Knesset Updates', 'Israel election Knesset politics results', '2d') +
                 live('World Elections Headlines', 'world elections', '2d')
                 : 
                 A('Elections Canada Official Portal', 'By-elections, voter registration & calendar', 'https://www.elections.ca') +
-                live('Ontario Municipal Elections News & Updates', 'Ontario municipal elections news updates', '2d') +
-                live('Manitoba municipal election news', 'Manitoba municipal election news updates', '2d')
+                live('Yukon municipal election updates', 'Yukon municipal election updates', '2d')
             );
     } else if (c === 'Active Wars') {
         b = `<div class="seg"><button class="${ca.s == 0 ? 'on' : ''}" onclick="cS(0)">Strategic Updates</button><button class="${ca.s == 1 ? 'on' : ''}" onclick="cS(1)">Canadian Military</button></div>`;
         if (ca.s === 0) {
-            b += live('Europe Strategic Updates', 'Europe war conflict strategic updates', '1d') +
-                 live('Middle East Strategic Updates', 'Middle East conflict war updates', '1d') +
-                 live('Africa Strategic Updates', 'Africa conflict civil war updates', '1d') +
-                 live('Asia-Pacific Military Tensions', 'Asia Pacific military tension conflict', '1d') +
-                 live('Americas & Global Conflicts', 'global conflict strategic updates', '1d');
+            b += live('Europe Strategic Updates', 'Europe war conflict strategic updates', '2d') +
+                 live('Middle East Strategic Updates', 'Middle East conflict war updates', '2d') +
+                 live('Africa Strategic Updates', 'Africa conflict civil war updates', '2d') +
+                 live('Asia-Pacific Military Tensions', 'Asia Pacific military tension conflict', '2d') +
+                 live('Americas & Global Conflicts', 'global conflict strategic updates', '2d');
         } else {
             b += `<div class="chips">${['Overview', 'Canadian Army', 'Royal Canadian Navy', 'RCAF'].map((x, i) => `<button class="${i == ca.y ? 'on' : ''}" onclick="cY(${i})">${x}</button>`).join('')}</div>`;
             if (ca.y === 0) {
-                b += live('Canadian Armed Forces Overview', 'Canadian Armed Forces military news', '1d') +
-                     live('Defence Policy & Strategy', 'Canada defence policy military strategic', '1d') +
-                     live('Military Procurements', 'Canada military procurement equipment contract', '1d');
+                b += live('Canadian Armed Forces Overview', 'Canadian Armed Forces military news', '2d') +
+                     live('Defence Policy & Strategy', 'Canada defence policy military strategic', '2d') +
+                     live('Military Procurements', 'Canada military procurement equipment contract', '2d');
             } else if (ca.y === 1) {
-                b += live('Canadian Army Operations', 'Canadian Army operations deployments', '1d') +
-                     live('Army Equipment & Contracts', 'Canadian Army vehicle procurement equipment', '1d');
+                b += live('Canadian Army Operations', 'Canadian Army operations deployments', '2d') +
+                     live('Army Equipment & Contracts', 'Canadian Army vehicle procurement equipment', '2d');
             } else if (ca.y === 2) {
-                b += live('Royal Canadian Navy Fleet Deployments', 'Royal Canadian Navy operations fleet deployments', '1d') +
-                     live('Navy Shipbuilding Procurements', 'Royal Canadian Navy ship procurement shipbuilding contract', '1d');
+                b += live('Royal Canadian Navy Fleet Deployments', 'Royal Canadian Navy operations fleet deployments', '2d') +
+                     live('Navy Shipbuilding Procurements', 'Royal Canadian Navy ship procurement shipbuilding contract', '2d');
             } else if (ca.y === 3) {
-                b += live('RCAF Aircraft Deployments', 'Royal Canadian Air Force operations aircraft deployments', '1d') +
-                     live('Air Force Procurement & Jet Fleet', 'RCAF aircraft procurement fighter jet radar', '1d');
+                b += live('RCAF Aircraft Deployments', 'Royal Canadian Air Force operations aircraft deployments', '2d') +
+                     live('Air Force Procurement & Jet Fleet', 'RCAF aircraft procurement fighter jet radar', '2d');
             }
         }
     } else {
